@@ -1,0 +1,15 @@
+name: ChestShopSearch
+version: 0.1
+author: BlvckBytes
+main: at.blvckbytes.chestshop_search.ChestShopSearchPlugin
+api-version: 1.21
+depend: [WorldGuard, ChestShop, ItemPredicateParser]
+commands:
+  shopsearch:
+    description: 'Search through all known shops'
+    aliases: [shopsuche]
+  shopteleport:
+    description: 'Internal command used to teleport to a shop and face it'
+  shopsearchlanguage:
+    description: 'Choose a personal language for search-predicates'
+    aliases: [shopsuchesprache]
