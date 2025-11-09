@@ -52,40 +52,7 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
     this.config = config;
   }
 
-  @Override
-  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-    if (!(sender instanceof Player player))
-      return false;
-
-    if (args.length == 0) {
-      config.rootSection.playerMessages.searchCommandUsage.sendMessage(
-        player,
-        config.rootSection.getBaseEnvironment()
-          .withStaticVariable("label", label)
-          .build()
-      );
-
-      return true;
-    }
-
-    var language = getUserLanguageOrDefault(player);
-
-    ItemPredicate predicate;
-
-    try {
-      var tokens = predicateHelper.parseTokens(args, 0);
-      predicate = predicateHelper.parsePredicate(language, tokens);
-    } catch (ItemPredicateParseException e) {
-      config.rootSection.playerMessages.searchCommandInvalidSearch.sendMessage(
-        player,
-        config.rootSection.getBaseEnvironment()
-          .withStaticVariable("error", predicateHelper.createExceptionMessage(e))
-          .build()
-      );
-
-      return true;
-    }
-
+  private List<ChestShopEntry> queryShops(@Nullable ItemPredicate predicate) {
     var results = new ArrayList<ChestShopEntry>();
 
     chestShopRegistry.forEachKnownShop(shop -> {
@@ -93,7 +60,37 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
         results.add(shop);
     });
 
-    var queryString = new StringifyState(true).appendPredicate(predicate).toString();
+    return results;
+  }
+
+  @Override
+  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    if (!(sender instanceof Player player))
+      return false;
+
+    var language = getUserLanguageOrDefault(player);
+
+    ItemPredicate predicate = null;
+
+    if (args.length != 0) {
+
+      try {
+        var tokens = predicateHelper.parseTokens(args, 0);
+        predicate = predicateHelper.parsePredicate(language, tokens);
+      } catch (ItemPredicateParseException e) {
+        config.rootSection.playerMessages.searchCommandInvalidSearch.sendMessage(
+          player,
+          config.rootSection.getBaseEnvironment()
+            .withStaticVariable("error", predicateHelper.createExceptionMessage(e))
+            .build()
+        );
+
+        return true;
+      }
+    }
+
+    var queryString = predicate == null ? "/" : new StringifyState(true).appendPredicate(predicate).toString();
+    var results = queryShops(predicate);
 
     if (results.isEmpty()) {
       config.rootSection.playerMessages.searchCommandNoResults.sendMessage(

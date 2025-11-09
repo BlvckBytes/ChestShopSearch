@@ -11,7 +11,6 @@ MESSAGE-SHOP-TELEPORT-COMMAND-NO-SHOP {prefix} &cBei den Koordinaten &4{coordina
 MESSAGE-SHOP-TELEPORT-COMMAND-SHOP-GONE {prefix} &cDer Shop bei den Koordinaten &4{coordinates} &cin der Welt &4{world} &cexistiert nicht mehr; entferne!
 MESSAGE-SHOP-TELEPORT-COMMAND-TELEPORTED {prefix} &7Du wurdest zum Shop von &a{owner} &7bei &a{coordinates} &7teleportiert!
 
-MESSAGE-SEARCH-COMMAND-USAGE {prefix} &cBenutze: /{label} <Suche>
 MESSAGE-SEARCH-COMMAND-INVALID-SEARCH {prefix} &cUngültige Suche: {error}
 MESSAGE-SEARCH-COMMAND-NO-RESULTS {prefix} &cDie Suche &4{query} &cerzielte &4keine Ergebnisse&c!
 MESSAGE-SEARCH-COMMAND-RESPONSE {prefix} &7Die Suche &a{query} &7erzielte &a{result_count} Ergebnisse&7!

@@ -17,7 +17,6 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable shopTeleportCommandShopGone;
   public BukkitEvaluable shopTeleportCommandTeleported;
 
-  public BukkitEvaluable searchCommandUsage;
   public BukkitEvaluable searchCommandInvalidSearch;
   public BukkitEvaluable searchCommandNoResults;
   public BukkitEvaluable searchCommandResponse;
