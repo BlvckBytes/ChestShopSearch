@@ -1,6 +1,6 @@
 package at.blvckbytes.chestshop_search.command;
 
-import at.blvckbytes.chestshop_search.UidScopedKeyValueStore;
+import at.blvckbytes.chestshop_search.NameScopedKeyValueStore;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.item_predicate_parser.translation.TranslationLanguage;
@@ -16,11 +16,11 @@ import java.util.List;
 
 public class ShopSearchLanguageCommand implements CommandExecutor, TabCompleter {
 
-  private final UidScopedKeyValueStore keyValueStore;
+  private final NameScopedKeyValueStore keyValueStore;
   private final ConfigKeeper<MainSection> config;
 
   public ShopSearchLanguageCommand(
-    UidScopedKeyValueStore keyValueStore,
+    NameScopedKeyValueStore keyValueStore,
     ConfigKeeper<MainSection> config
   ) {
     this.keyValueStore = keyValueStore;
@@ -56,7 +56,7 @@ public class ShopSearchLanguageCommand implements CommandExecutor, TabCompleter 
       return true;
     }
 
-    keyValueStore.write(player.getUniqueId(), UidScopedKeyValueStore.KEY_QUERY_LANGUAGE, languageSelection.constant.name());
+    keyValueStore.write(player.getUniqueId().toString(), NameScopedKeyValueStore.KEY_QUERY_LANGUAGE, languageSelection.constant.name());
 
     config.rootSection.playerMessages.languageCommandSelectionMade.sendMessage(
       player,

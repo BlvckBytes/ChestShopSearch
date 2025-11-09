@@ -13,11 +13,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UidScopedKeyValueStore {
+public class NameScopedKeyValueStore {
 
   public static final String KEY_QUERY_LANGUAGE = "query-language";
 
@@ -26,35 +25,35 @@ public class UidScopedKeyValueStore {
   private final File dataFile;
   private final Logger logger;
 
-  private final Map<UUID, Map<String, String>> namedStampsByUid;
+  private final Map<String, Map<String, String>> valueByKeyByName;
   private boolean isDataDirty;
 
-  public UidScopedKeyValueStore(File dataFile, Logger logger) {
+  public NameScopedKeyValueStore(File dataFile, Logger logger) {
     this.dataFile = dataFile;
     this.logger = logger;
-    this.namedStampsByUid = new HashMap<>();
+    this.valueByKeyByName = new HashMap<>();
 
     loadFromDisk();
   }
 
-  public void write(UUID id, String name, String value) {
+  public void write(String name, String key, String value) {
     isDataDirty = true;
 
-    namedStampsByUid
-      .computeIfAbsent(id, k -> new HashMap<>())
-      .put(name.toLowerCase(), value);
+    valueByKeyByName
+      .computeIfAbsent(name.toLowerCase(), k -> new HashMap<>())
+      .put(key.toLowerCase(), value);
   }
 
   /**
    * @return -1 if non-existent; value >= 0 otherwise
    */
-  public @Nullable String read(UUID id, String name) {
-    var stampByName = namedStampsByUid.get(id);
+  public @Nullable String read(String name, String key) {
+    var valueByKey = valueByKeyByName.get(name.toLowerCase());
 
-    if (stampByName == null)
+    if (valueByKey == null)
       return null;
 
-    return stampByName.getOrDefault(name.toLowerCase(), null);
+    return valueByKey.getOrDefault(key.toLowerCase(), null);
   }
 
   private void loadFromDisk() {
@@ -70,36 +69,27 @@ public class UidScopedKeyValueStore {
         return;
 
       for (var jsonEntry : jsonData.entrySet()) {
-        var idString = jsonEntry.getKey();
+        var name = jsonEntry.getKey();
 
-        UUID id;
-
-        try {
-          id = UUID.fromString(idString);
-        } catch (Exception e) {
-          logger.log(Level.WARNING, "Could not parse ID \"" + idString + "\" of state-file at " + dataFile, e);
+        if (!(jsonEntry.getValue() instanceof JsonObject valueByKeyObject)) {
+          logger.warning("Value at \"" + name + "\" of store-file at " + dataFile + " was not a map");
           continue;
         }
 
-        if (!(jsonEntry.getValue() instanceof JsonObject stampByNameObject)) {
-          logger.warning("Value at ID \"" + idString + "\" of state-file at " + dataFile + " was not a map");
-          continue;
-        }
+        var valueByKey = new HashMap<String, String>();
 
-        var stampByName = new HashMap<String, String>();
-
-        for (var stampEntry : stampByNameObject.entrySet()) {
-          var name = stampEntry.getKey();
+        for (var stampEntry : valueByKeyObject.entrySet()) {
+          var key = stampEntry.getKey();
 
           if (!(stampEntry.getValue() instanceof JsonPrimitive valuePrimitive)) {
-            logger.warning("Value at ID \"" + idString + "\" and name \"" + name + "\" of state-file at " + dataFile + " was not a primitive");
+            logger.warning("Value at \"" + name + "\" and key \"" + name + "\" of store-file at " + dataFile + " was not a primitive");
             continue;
           }
 
-          stampByName.put(name, valuePrimitive.getAsString());
+          valueByKey.put(key, valuePrimitive.getAsString());
         }
 
-        namedStampsByUid.put(id, stampByName);
+        valueByKeyByName.put(name, valueByKey);
       }
     } catch (Exception e) {
       logger.log(Level.SEVERE, "Could not read state-file at " + dataFile, e);
@@ -116,9 +106,16 @@ public class UidScopedKeyValueStore {
       var fileWriter = new FileWriter(dataFile, Charsets.UTF_8);
       var jsonWriter = new JsonWriter(fileWriter);
     ) {
-      GSON_INSTANCE.toJson(this.namedStampsByUid, Map.class, jsonWriter);
+      GSON_INSTANCE.toJson(this.valueByKeyByName, Map.class, jsonWriter);
     } catch (Exception e) {
       logger.log(Level.SEVERE, "Could not write state-file to " + dataFile, e);
     }
+  }
+
+  // We're "scoping" these artificially under the owner's name, because of two reasons:
+  // - If somebody else takes over the same shop-region, they should not get the preference of the previous owner.
+  // - Shops (the actual entity that's to be hidden or shown) only have an owner-name on the sign.
+  public static String makeRegionVisibilityKey(String region) {
+    return "region-visibility__" + region;
   }
 }

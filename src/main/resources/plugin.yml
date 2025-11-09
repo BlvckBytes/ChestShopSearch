@@ -7,7 +7,7 @@ depend: [WorldGuard, ChestShop, ItemPredicateParser]
 commands:
   shopsearch:
     description: 'Search through all known shops'
-    aliases: [shopsuche]
+  shopsearchtoggle:
+    description: 'Toggle whether your current region participates in the global search'
   shopsearchlanguage:
     description: 'Choose a personal language for search-predicates'
-    aliases: [shopsuchesprache]

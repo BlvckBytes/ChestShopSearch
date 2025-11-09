@@ -11,6 +11,10 @@ MESSAGE-SEARCH-COMMAND-RESPONSE {prefix} &7Die Suche &a{query} &7erzielte &a{res
 MESSAGE-SHOP-TELEPORT-SHOP-GONE {prefix} &cDer Shop bei den Koordinaten &4{coordinates} &cin der Welt &4{world} &cexistiert nicht mehr; entferne!
 MESSAGE-SHOP-TELEPORT-TELEPORTED {prefix} &7Du wurdest zum Shop von &a{owner} &7bei &a{coordinates} &7teleportiert!
 
+MESSAGE-SHOP-SEARCH-TOGGLE-NOT-IN-A-REGION {prefix} &cDu befindest dich aktuell in keiner Shop-Region, die du besitzt!
+MESSAGE-SHOP-SEARCH-TOGGLE-NOW-VISIBLE     {prefix} &7Die Sichtbarkeit der Region &a{region} &7von &a{owner} &7ist nun &aaktiviert&7!
+MESSAGE-SHOP-SEARCH-TOGGLE-NOW-INVISIBLE   {prefix} &7Die Sichtbarkeit der Region &a{region} &7von &a{owner} &7ist nun &cdeaktiviert&7!
+
 # ==================== BEGIN ResultDisplay ====================
 
 # - current_page: Integer

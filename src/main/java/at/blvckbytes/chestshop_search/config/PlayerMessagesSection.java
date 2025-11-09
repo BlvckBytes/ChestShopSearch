@@ -17,6 +17,10 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable shopTeleportShopGone;
   public BukkitEvaluable shopTeleportTeleported;
 
+  public BukkitEvaluable shopSearchToggleNotInARegion;
+  public BukkitEvaluable shopSearchToggleNowVisible;
+  public BukkitEvaluable shopSearchToggleNowInvisible;
+
   public PlayerMessagesSection(EvaluationEnvironmentBuilder baseEnvironment) {
     super(baseEnvironment);
   }

@@ -2,7 +2,7 @@ package at.blvckbytes.chestshop_search.command;
 
 import at.blvckbytes.chestshop_search.ChestShopEntry;
 import at.blvckbytes.chestshop_search.ChestShopRegistry;
-import at.blvckbytes.chestshop_search.UidScopedKeyValueStore;
+import at.blvckbytes.chestshop_search.NameScopedKeyValueStore;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayData;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
@@ -28,14 +28,14 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
 
   private final ChestShopRegistry chestShopRegistry;
   private final PredicateHelper predicateHelper;
-  private final UidScopedKeyValueStore keyValueStore;
+  private final NameScopedKeyValueStore keyValueStore;
   private final ResultDisplayHandler resultDisplayHandler;
   private final ConfigKeeper<MainSection> config;
 
   public ChestShopSearchCommand(
     ChestShopRegistry chestShopRegistry,
     PredicateHelper predicateHelper,
-    UidScopedKeyValueStore keyValueStore,
+    NameScopedKeyValueStore keyValueStore,
     ResultDisplayHandler resultDisplayHandler,
     ConfigKeeper<MainSection> config
   ) {
@@ -136,7 +136,7 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
   }
 
   private TranslationLanguage getUserLanguageOrDefault(Player player) {
-    var languageName = keyValueStore.read(player.getUniqueId(), UidScopedKeyValueStore.KEY_QUERY_LANGUAGE);
+    var languageName = keyValueStore.read(player.getUniqueId().toString(), NameScopedKeyValueStore.KEY_QUERY_LANGUAGE);
 
     if (languageName == null)
       return TranslationLanguage.GERMAN_DE;

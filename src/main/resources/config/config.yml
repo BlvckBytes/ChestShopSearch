@@ -17,6 +17,10 @@ playerMessages:
   shopTeleportShopGone: '@{MESSAGE-SHOP-TELEPORT-SHOP-GONE(prefix=lut["MESSAGE_PREFIX"])}'
   shopTeleportTeleported: '@{MESSAGE-SHOP-TELEPORT-TELEPORTED(prefix=lut["MESSAGE_PREFIX"])}'
 
+  shopSearchToggleNotInARegion: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOT-IN-A-REGION(prefix=lut["MESSAGE_PREFIX"])}'
+  shopSearchToggleNowVisible: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOW-VISIBLE(prefix=lut["MESSAGE_PREFIX"])}'
+  shopSearchToggleNowInvisible: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOW-INVISIBLE(prefix=lut["MESSAGE_PREFIX"])}'
+
 # - current_page: Integer
 # - number_pages: Integer
 # - number_of_rows: Integer

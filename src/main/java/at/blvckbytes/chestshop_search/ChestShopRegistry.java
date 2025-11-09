@@ -4,6 +4,10 @@ import at.blvckbytes.chestshop_search.config.MainSection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
@@ -15,7 +19,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,26 +27,53 @@ public class ChestShopRegistry {
 
   private static final Gson GSON_INSTANCE = new GsonBuilder().setPrettyPrinting().create();
 
+  private final NameScopedKeyValueStore keyValueStore;
+  private final RegionContainer regionContainer;
   private final File persistenceFile;
   private final ConfigKeeper<MainSection> config;
   private final Logger logger;
-  private final Map<UUID, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
+  private final Map<WorldAndRegionManager, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
 
   public ChestShopRegistry(
+    NameScopedKeyValueStore keyValueStore,
     File persistenceFile,
     ConfigKeeper<MainSection> config,
     Logger logger
   ) {
+    this.keyValueStore = keyValueStore;
+    this.regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
     this.persistenceFile = persistenceFile;
     this.config = config;
     this.logger = logger;
     this.shopByFastHashByWorldId = new HashMap<>();
   }
 
+  private boolean checkIfShopIsHidden(ChestShopEntry shopEntry, RegionManager regionManager) {
+    var regionSet = regionManager.getApplicableRegions(shopEntry.blockVector);
+    var ownerName = shopEntry.owner;
+
+    for (var region : regionSet) {
+      var visibilityState = keyValueStore.read(ownerName, NameScopedKeyValueStore.makeRegionVisibilityKey(region.getId()));
+
+      if (!"false".equals(visibilityState))
+        continue;
+
+      return true;
+    }
+
+    return false;
+  }
+
   public void forEachKnownShop(Consumer<ChestShopEntry> consumer) {
-    for (var worldBucket : shopByFastHashByWorldId.values()) {
-      for (var shopEntry : worldBucket.values())
+    for (var worldBucketEntry : shopByFastHashByWorldId.entrySet()) {
+      var regionManager = worldBucketEntry.getKey().regionManager();
+
+      for (var shopEntry : worldBucketEntry.getValue().values()) {
+        if (checkIfShopIsHidden(shopEntry, regionManager))
+          continue;
+
         consumer.accept(shopEntry);
+      }
     }
   }
 
@@ -159,7 +189,14 @@ public class ChestShopRegistry {
       return null;
     }
 
-    return this.shopByFastHashByWorldId.computeIfAbsent(signWorld.getUID(), key -> new Long2ObjectOpenHashMap<>());
+    var regionManager = regionContainer.get(BukkitAdapter.adapt(signWorld));
+
+    if (regionManager == null) {
+      logger.warning("Could not locate region-manager of world " + signWorld);
+      return null;
+    }
+
+    return this.shopByFastHashByWorldId.computeIfAbsent(new WorldAndRegionManager(signWorld, regionManager), key -> new Long2ObjectOpenHashMap<>());
   }
 
   private static long fastCoordinateHash(int x, int y, int z) {

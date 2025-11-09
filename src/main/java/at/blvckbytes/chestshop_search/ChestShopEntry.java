@@ -3,6 +3,8 @@ package at.blvckbytes.chestshop_search;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.bukkitevaluable.IItemBuildable;
 import me.blvckbytes.bukkitevaluable.ItemBuilder;
@@ -29,6 +31,7 @@ public class ChestShopEntry {
   public final int quantity;
   public final double buyPrice;
   public final double sellPrice;
+  public final BlockVector3 blockVector;
 
   public final IEvaluationEnvironment shopEnvironment;
 
@@ -58,6 +61,7 @@ public class ChestShopEntry {
     this.stock = stock;
     this.containerSize = containerSize;
     this.config = config;
+    this.blockVector = BukkitAdapter.adapt(signLocation).toVector().toBlockPoint();
 
     this.shopEnvironment = new EvaluationEnvironmentBuilder()
       .withStaticVariable("owner", owner)

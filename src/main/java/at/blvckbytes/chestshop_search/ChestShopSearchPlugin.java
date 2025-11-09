@@ -2,6 +2,7 @@ package at.blvckbytes.chestshop_search;
 
 import at.blvckbytes.chestshop_search.command.ChestShopSearchCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchLanguageCommand;
+import at.blvckbytes.chestshop_search.command.ShopSearchToggleCommand;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
@@ -18,15 +19,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 public class ChestShopSearchPlugin extends JavaPlugin {
 
   private @Nullable ChestShopRegistry chestShopRegistry;
-  private @Nullable UidScopedKeyValueStore keyValueStore;
+  private @Nullable NameScopedKeyValueStore keyValueStore;
   private @Nullable SelectionStateStore selectionStateStore;
   private @Nullable ResultDisplayHandler resultDisplayHandler;
 
@@ -38,20 +37,19 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       // First invocation is quite heavy - warm up cache
       XMaterial.matchXMaterial(Material.AIR);
 
+      keyValueStore = new NameScopedKeyValueStore(getFileAndEnsureExistence("user-preferences.json"), logger);
+
       var configManager = new ConfigManager(this, "config");
       var config = new ConfigKeeper<>(configManager, "config.yml", MainSection.class);
 
-      chestShopRegistry = new ChestShopRegistry(getFileAndEnsureExistence("known-shops.json"), config, logger);
+      chestShopRegistry = new ChestShopRegistry(keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
 
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
-      // On first tick - when bootup completed
-      Bukkit.getScheduler().runTask(this, () -> {
-        var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config);
-        getServer().getPluginManager().registerEvents(dataListener, this);
+      var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config);
+      getServer().getPluginManager().registerEvents(dataListener, this);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(this, chestShopRegistry::save, 20L * 30, 20L * 300);
-      });
+      Bukkit.getScheduler().runTaskTimerAsynchronously(this, chestShopRegistry::save, 20L * 30, 20L * 300);
 
       var parserPlugin = ItemPredicateParserPlugin.getInstance();
 
@@ -59,8 +57,6 @@ public class ChestShopSearchPlugin extends JavaPlugin {
         throw new IllegalStateException("Depending on ItemPredicateParser to be successfully loaded");
 
       var predicateHelper = parserPlugin.getPredicateHelper();
-
-      keyValueStore = new UidScopedKeyValueStore(getFileAndEnsureExistence("user-preferences.json"), logger);
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20L * 5, 20L * 5);
 
@@ -71,6 +67,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       Objects.requireNonNull(getCommand("shopsearch")).setExecutor(new ChestShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
       Objects.requireNonNull(getCommand("shopsearchlanguage")).setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
+      Objects.requireNonNull(getCommand("shopsearchtoggle")).setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);
       Bukkit.getPluginManager().disablePlugin(this);
@@ -100,8 +97,8 @@ public class ChestShopSearchPlugin extends JavaPlugin {
     }
   }
 
-  private List<ProtectedRegion> getShopRegions(ConfigKeeper<MainSection> config) {
-    var result = new ArrayList<ProtectedRegion>();
+  private Set<ProtectedRegion> getShopRegions(ConfigKeeper<MainSection> config) {
+    var result = new HashSet<ProtectedRegion>();
 
     var shopRegionPattern = config.rootSection.regionFilter.compiledShopRegionPattern;
     var shopRegionWorlds = config.rootSection.regionFilter.shopRegionWorlds;

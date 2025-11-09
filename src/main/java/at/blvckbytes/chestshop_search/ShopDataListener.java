@@ -22,19 +22,19 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
+import java.util.Set;
 
 public class ShopDataListener implements Listener {
 
   private final Plugin plugin;
   private final ChestShopRegistry chestShopRegistry;
-  private final List<ProtectedRegion> shopRegions;
   private final ConfigKeeper<MainSection> config;
+  public final Set<ProtectedRegion> shopRegions;
 
   public ShopDataListener(
     Plugin plugin,
     ChestShopRegistry chestShopRegistry,
-    List<ProtectedRegion> shopRegions,
+    Set<ProtectedRegion> shopRegions,
     ConfigKeeper<MainSection> config
   ) {
     this.plugin = plugin;
