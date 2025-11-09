@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -130,11 +131,19 @@ public class ShopDataListener implements Listener {
     int stock = -1;
     int size = -1;
 
-    var container = uBlock.findConnectedContainer(shopSign);
+    // Manually look up the container, as ChestShop's utility disregards unloaded blocks, and
+    // the container could be on an exact chunk-boundary; this will load said chunk if necessary.
+    if (shopSign.getBlockData() instanceof WallSign wallSign) {
+      var mountedOnFace = wallSign.getFacing().getOppositeFace();
 
-    if (container != null) {
-      stock = InventoryUtil.getAmount(shopItem, container.getInventory());
-      size = container.getInventory().getSize();
+      var mountedOnBlock = shopSign.getLocation()
+        .add(mountedOnFace.getModX(), mountedOnFace.getModY(), mountedOnFace.getModZ())
+        .getBlock();
+
+      if (mountedOnBlock.getState() instanceof Container container) {
+        stock = InventoryUtil.getAmount(shopItem, container.getInventory());
+        size = container.getInventory().getSize();
+      }
     }
 
     var shopEntry = new ChestShopEntry(

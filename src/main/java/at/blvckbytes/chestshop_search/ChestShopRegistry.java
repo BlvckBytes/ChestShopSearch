@@ -163,8 +163,13 @@ public class ChestShopRegistry {
     if (worldBucket != null) {
       var shop = worldBucket.get(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()));
 
-      if (shop != null)
+      if (shop != null) {
         shop.stock += amount * (wasBuy ? -1 : 1);
+
+        // Just to be safe
+        if (shop.stock < 0)
+          shop.stock = 0;
+      }
     }
   }
 
