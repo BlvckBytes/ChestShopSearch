@@ -21,6 +21,9 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable searchCommandNoResults;
   public BukkitEvaluable searchCommandResponse;
 
+  public BukkitEvaluable shopTeleportShopGone;
+  public BukkitEvaluable shopTeleportTeleported;
+
   public PlayerMessagesSection(EvaluationEnvironmentBuilder baseEnvironment) {
     super(baseEnvironment);
   }

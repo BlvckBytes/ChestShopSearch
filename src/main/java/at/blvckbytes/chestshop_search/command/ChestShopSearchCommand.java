@@ -4,51 +4,45 @@ import at.blvckbytes.chestshop_search.ChestShopEntry;
 import at.blvckbytes.chestshop_search.ChestShopRegistry;
 import at.blvckbytes.chestshop_search.UidScopedKeyValueStore;
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.chestshop_search.display.result.ResultDisplayData;
+import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.item_predicate_parser.PredicateHelper;
-import me.blvckbytes.item_predicate_parser.TranslationLanguageRegistry;
 import me.blvckbytes.item_predicate_parser.parse.ItemPredicateParseException;
 import me.blvckbytes.item_predicate_parser.predicate.ItemPredicate;
 import me.blvckbytes.item_predicate_parser.predicate.StringifyState;
 import me.blvckbytes.item_predicate_parser.translation.TranslationLanguage;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
 
-  private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.##");
-
   private final ChestShopRegistry chestShopRegistry;
   private final PredicateHelper predicateHelper;
-  private final TranslationLanguageRegistry languageRegistry;
   private final UidScopedKeyValueStore keyValueStore;
+  private final ResultDisplayHandler resultDisplayHandler;
   private final ConfigKeeper<MainSection> config;
 
   public ChestShopSearchCommand(
     ChestShopRegistry chestShopRegistry,
     PredicateHelper predicateHelper,
-    TranslationLanguageRegistry languageRegistry,
     UidScopedKeyValueStore keyValueStore,
+    ResultDisplayHandler resultDisplayHandler,
     ConfigKeeper<MainSection> config
   ) {
     this.chestShopRegistry = chestShopRegistry;
     this.predicateHelper = predicateHelper;
-    this.languageRegistry = languageRegistry;
     this.keyValueStore = keyValueStore;
+    this.resultDisplayHandler = resultDisplayHandler;
     this.config = config;
   }
 
@@ -111,45 +105,9 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
         .build()
     );
 
-    for (var result : results) {
-      var message = Component.text("- ").color(NamedTextColor.GRAY)
-        .append(Component.text(result.owner).color(NamedTextColor.GREEN))
-        .append(Component.text(" | ").color(NamedTextColor.GRAY))
-        .append(Component.text(result.quantity + "x").color(NamedTextColor.GREEN));
-
-      if (result.buyPrice >= 0) {
-        message = message
-          .append(Component.text(" | ").color(NamedTextColor.GRAY))
-          .append(Component.text("B " + DECIMAL_FORMAT.format(result.buyPrice) + " (" + result.stock + " übrig)").color(NamedTextColor.GREEN));
-      }
-
-      if (result.sellPrice >= 0) {
-        message = message
-          .append(Component.text(" | ").color(NamedTextColor.GRAY))
-          .append(Component.text("S " + DECIMAL_FORMAT.format(result.sellPrice) + " (" + result.calculateSpace() + " Platz)").color(NamedTextColor.GREEN));
-      }
-
-      message = message
-        .append(Component.text(" | ").color(NamedTextColor.GRAY))
-        .append(
-          Component.text(getTranslationOrFallback(language, result.item))
-            .hoverEvent(result.item.asHoverEvent())
-            .color(NamedTextColor.GREEN)
-            .decorate(TextDecoration.UNDERLINED)
-        );
-
-      var locationString = result.signLocation.getWorld().getName() + " " + result.signLocation.getBlockX() + " " + result.signLocation.getBlockY() + " " + result.signLocation.getBlockZ();
-
-      player.sendMessage(message.clickEvent(ClickEvent.runCommand("/shopteleport " + locationString)));
-    }
+    resultDisplayHandler.show(player, new ResultDisplayData(results));
 
     return true;
-  }
-
-  private String getTranslationOrFallback(TranslationLanguage language, ItemStack item) {
-    var translationRegistry = languageRegistry.getTranslationRegistry(language);
-    var translation = translationRegistry.getTranslationBySingleton(item.getType());
-    return translation == null ? item.getType().name() : translation;
   }
 
   @Override

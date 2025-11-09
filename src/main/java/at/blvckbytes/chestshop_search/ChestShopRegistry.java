@@ -1,10 +1,12 @@
 package at.blvckbytes.chestshop_search;
 
+import at.blvckbytes.chestshop_search.config.MainSection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Location;
 
 import javax.annotation.Nullable;
@@ -22,13 +24,19 @@ public class ChestShopRegistry {
 
   private static final Gson GSON_INSTANCE = new GsonBuilder().setPrettyPrinting().create();
 
-  private final Logger logger;
   private final File persistenceFile;
+  private final ConfigKeeper<MainSection> config;
+  private final Logger logger;
   private final Map<UUID, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
 
-  public ChestShopRegistry(File persistenceFile, Logger logger) {
-    this.logger = logger;
+  public ChestShopRegistry(
+    File persistenceFile,
+    ConfigKeeper<MainSection> config,
+    Logger logger
+  ) {
     this.persistenceFile = persistenceFile;
+    this.config = config;
+    this.logger = logger;
     this.shopByFastHashByWorldId = new HashMap<>();
   }
 
@@ -75,7 +83,7 @@ public class ChestShopRegistry {
       var loadedCounter = 0;
 
       for (var jsonShop : jsonShops) {
-        var shopEntry = ChestShopEntry.fromJson(jsonShop, logger);
+        var shopEntry = ChestShopEntry.fromJson(jsonShop, config, logger);
 
         if (shopEntry == null)
           continue;

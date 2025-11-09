@@ -4,6 +4,8 @@ import at.blvckbytes.chestshop_search.command.ChestShopSearchCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchLanguageCommand;
 import at.blvckbytes.chestshop_search.command.ShopTeleportCommand;
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
+import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
 import com.cryptomorin.xseries.XMaterial;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
@@ -26,6 +28,8 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
   private @Nullable ChestShopRegistry chestShopRegistry;
   private @Nullable UidScopedKeyValueStore keyValueStore;
+  private @Nullable SelectionStateStore selectionStateStore;
+  private @Nullable ResultDisplayHandler resultDisplayHandler;
 
   @Override
   public void onEnable() {
@@ -38,13 +42,13 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var configManager = new ConfigManager(this, "config");
       var config = new ConfigKeeper<>(configManager, "config.yml", MainSection.class);
 
-      chestShopRegistry = new ChestShopRegistry(getFileAndEnsureExistence("known-shops.json"), logger);
+      chestShopRegistry = new ChestShopRegistry(getFileAndEnsureExistence("known-shops.json"), config, logger);
 
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
       // On first tick - when bootup completed
       Bukkit.getScheduler().runTask(this, () -> {
-        var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config));
+        var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config);
         getServer().getPluginManager().registerEvents(dataListener, this);
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, chestShopRegistry::save, 20L * 30, 20L * 300);
@@ -55,14 +59,18 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       if (parserPlugin == null)
         throw new IllegalStateException("Depending on ItemPredicateParser to be successfully loaded");
 
-      var languageRegistry = parserPlugin.getTranslationLanguageRegistry();
       var predicateHelper = parserPlugin.getPredicateHelper();
 
       keyValueStore = new UidScopedKeyValueStore(getFileAndEnsureExistence("user-preferences.json"), logger);
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20L * 5, 20L * 5);
 
-      Objects.requireNonNull(getCommand("shopsearch")).setExecutor(new ChestShopSearchCommand(chestShopRegistry, predicateHelper, languageRegistry, keyValueStore, config));
+      selectionStateStore = new SelectionStateStore(this, logger);
+      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, this);
+
+      Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
+
+      Objects.requireNonNull(getCommand("shopsearch")).setExecutor(new ChestShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
       Objects.requireNonNull(getCommand("shopsearchlanguage")).setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
       Objects.requireNonNull(getCommand("shopteleport")).setExecutor(new ShopTeleportCommand(chestShopRegistry, config));
     } catch (Throwable e) {
@@ -81,6 +89,16 @@ public class ChestShopSearchPlugin extends JavaPlugin {
     if (keyValueStore != null) {
       keyValueStore.saveToDisk();
       keyValueStore = null;
+    }
+
+    if (selectionStateStore != null) {
+      selectionStateStore.onShutdown();
+      selectionStateStore = null;
+    }
+
+    if (resultDisplayHandler != null) {
+      resultDisplayHandler.onShutdown();
+      resultDisplayHandler = null;
     }
   }
 
