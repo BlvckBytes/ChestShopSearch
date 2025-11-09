@@ -8,8 +8,6 @@ commands:
   shopsearch:
     description: 'Search through all known shops'
     aliases: [shopsuche]
-  shopteleport:
-    description: 'Internal command used to teleport to a shop and face it'
   shopsearchlanguage:
     description: 'Choose a personal language for search-predicates'
     aliases: [shopsuchesprache]

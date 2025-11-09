@@ -2,7 +2,6 @@ package at.blvckbytes.chestshop_search;
 
 import at.blvckbytes.chestshop_search.command.ChestShopSearchCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchLanguageCommand;
-import at.blvckbytes.chestshop_search.command.ShopTeleportCommand;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
@@ -72,7 +71,6 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       Objects.requireNonNull(getCommand("shopsearch")).setExecutor(new ChestShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
       Objects.requireNonNull(getCommand("shopsearchlanguage")).setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
-      Objects.requireNonNull(getCommand("shopteleport")).setExecutor(new ShopTeleportCommand(chestShopRegistry, config));
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);
       Bukkit.getPluginManager().disablePlugin(this);

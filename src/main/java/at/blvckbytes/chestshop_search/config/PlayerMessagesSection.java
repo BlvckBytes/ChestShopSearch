@@ -10,13 +10,6 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable languageCommandUnknownLanguage;
   public BukkitEvaluable languageCommandSelectionMade;
 
-  public BukkitEvaluable shopTeleportCommandUsage;
-  public BukkitEvaluable shopTeleportCommandUnknownWorld;
-  public BukkitEvaluable shopTeleportCommandInvalidCoordinates;
-  public BukkitEvaluable shopTeleportCommandNoShop;
-  public BukkitEvaluable shopTeleportCommandShopGone;
-  public BukkitEvaluable shopTeleportCommandTeleported;
-
   public BukkitEvaluable searchCommandInvalidSearch;
   public BukkitEvaluable searchCommandNoResults;
   public BukkitEvaluable searchCommandResponse;

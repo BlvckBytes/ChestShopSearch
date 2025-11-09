@@ -4,13 +4,6 @@ MESSAGE-LANGUAGE-COMMAND-USAGE {prefix} &cBenutze: /{label} <Sprache>
 MESSAGE-LANGUAGE-COMMAND-UNKNOWN-LANGUAGE {prefix} &cDie Eingabe &4{input} &cstellt keine gültige Sprache dar!
 MESSAGE-LANGUAGE-COMMAND-SELECTION-MADE {prefix} &7Die Sprache &a{language} &7wurde erfolgreich für künftige Suchen ausgewählt!
 
-MESSAGE-SHOP-TELEPORT-COMMAND-USAGE {prefix} &cBenutze: /{label} <Welt> <Schild X> <Schild Y> <Schild Z>
-MESSAGE-SHOP-TELEPORT-COMMAND-UNKNOWN-WORLD {prefix} &cDie Eingabe &4{input} &cstellt keine gültige Welt dar!
-MESSAGE-SHOP-TELEPORT-COMMAND-INVALID-COORDINATES {prefix} &cDie Eingabe &4{input} &cstellt keine gültigen Koordinaten dar!
-MESSAGE-SHOP-TELEPORT-COMMAND-NO-SHOP {prefix} &cBei den Koordinaten &4{coordinates} &cder Welt &4{world} &cbefindet sich kein Shop!
-MESSAGE-SHOP-TELEPORT-COMMAND-SHOP-GONE {prefix} &cDer Shop bei den Koordinaten &4{coordinates} &cin der Welt &4{world} &cexistiert nicht mehr; entferne!
-MESSAGE-SHOP-TELEPORT-COMMAND-TELEPORTED {prefix} &7Du wurdest zum Shop von &a{owner} &7bei &a{coordinates} &7teleportiert!
-
 MESSAGE-SEARCH-COMMAND-INVALID-SEARCH {prefix} &cUngültige Suche: {error}
 MESSAGE-SEARCH-COMMAND-NO-RESULTS {prefix} &cDie Suche &4{query} &cerzielte &4keine Ergebnisse&c!
 MESSAGE-SEARCH-COMMAND-RESPONSE {prefix} &7Die Suche &a{query} &7erzielte &a{result_count} Ergebnisse&7!
