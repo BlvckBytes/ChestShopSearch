@@ -7,6 +7,7 @@ import java.util.List;
 
 public enum ShopFilteringCriteria implements FilteringFunction {
 
+  ADMINSHOP((shop, negative) -> ("Adminshop".equals(shop.owner)) ^ negative),
   CAN_BUY((shop, negative) -> (shop.buyPrice >= 0) ^ negative),
   CAN_SELL((shop, negative) -> (shop.sellPrice >= 0) ^ negative),
   HAS_STOCK_LEFT((shop, negative) -> {

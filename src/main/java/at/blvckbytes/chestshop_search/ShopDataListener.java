@@ -15,6 +15,7 @@ import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.Container;
+import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -76,7 +77,7 @@ public class ShopDataListener implements Listener {
 
   @EventHandler
   public void onShopCreated(ShopCreatedEvent event) {
-    Bukkit.getScheduler().runTask(plugin, () -> possiblyRegisterContainerShop(event.getContainer(), false));
+    Bukkit.getScheduler().runTask(plugin, () -> possiblyRegisterShop(event.getSign(), false));
   }
 
   @EventHandler
@@ -92,17 +93,16 @@ public class ShopDataListener implements Listener {
       return;
 
     for (var tileEntity : chunk.getTileEntities()) {
-      if (tileEntity instanceof Container container)
-        possiblyRegisterContainerShop(container, true);
+      if (tileEntity instanceof Sign sign) {
+        if (!ChestShopSign.isValid(sign))
+          continue;
+
+        possiblyRegisterShop(sign, true);
+      }
     }
   }
 
-  private void possiblyRegisterContainerShop(Container container, boolean wasOnChunkLoad) {
-    var shopSign = uBlock.getConnectedSign(container);
-
-    if (shopSign == null)
-      return;
-
+  private void possiblyRegisterShop(Sign shopSign, boolean wasOnChunkLoad) {
     var signLocation = shopSign.getLocation();
 
     if (wasOnChunkLoad && chestShopRegistry.getShopAtLocation(signLocation) != null)
@@ -127,6 +127,16 @@ public class ShopDataListener implements Listener {
     if (buyPrice < 0 && sellPrice < 0)
       return;
 
+    int stock = -1;
+    int size = -1;
+
+    var container = uBlock.findConnectedContainer(shopSign);
+
+    if (container != null) {
+      stock = InventoryUtil.getAmount(shopItem, container.getInventory());
+      size = container.getInventory().getSize();
+    }
+
     var shopEntry = new ChestShopEntry(
       shopItem,
       owner,
@@ -134,8 +144,8 @@ public class ShopDataListener implements Listener {
       ChestShopSign.getQuantity(shopSign),
       buyPrice,
       sellPrice,
-      InventoryUtil.getAmount(shopItem, container.getInventory()),
-      container.getInventory().getSize(),
+      stock,
+      size,
       config
     );
 

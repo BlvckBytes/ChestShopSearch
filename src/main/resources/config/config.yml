@@ -1,7 +1,7 @@
 # PRE-PROCESSOR-INPUT de_de.txt
 
 regionFilter:
-  shopRegionPattern: '^shop[0-9]+$'
+  shopRegionPattern: '^(shop[0-9]+)|adminshop$'
   shopRegionWorlds:
     - world
 
@@ -74,7 +74,7 @@ resultDisplay:
           if can_buy then
             list_of(
               @{REPRESENTATIVE-LORE-BUYING-PRICE},
-              @{REPRESENTATIVE-LORE-REMAINING-STOCK}
+              @{REPRESENTATIVE-LORE-REMAINING-STOCK(remaining_stock=if remaining_stock >= 0 then remaining_stock else "∞")}
             )
           else
             null
@@ -82,7 +82,7 @@ resultDisplay:
           if can_sell then
             list_of(
               @{REPRESENTATIVE-LORE-SELLING-PRICE},
-              @{REPRESENTATIVE-LORE-REMAINING-SPACE}
+              @{REPRESENTATIVE-LORE-REMAINING-SPACE(remaining_space=if remaining_space >= 0 then remaining_space else "∞")}
             )
           else
             null
@@ -176,6 +176,7 @@ lut:
     DESCENDING: '@{SORTING-LORE-SELECTION-STYLE-DESCENDING}'
     INACTIVE: '@{SORTING-LORE-SELECTION-STYLE-INACTIVE}'
   filteringCriteria:
+    ADMINSHOP: '@{FILTERING-LORE-CRITERIA-ADMINSHOP}'
     CAN_BUY: '@{FILTERING-LORE-CRITERIA-CAN-BUY}'
     CAN_SELL: '@{FILTERING-LORE-CRITERIA-CAN-SELL}'
     HAS_STOCK_LEFT: '@{FILTERING-LORE-CRITERIA-HAS-STOCK-LEFT}'

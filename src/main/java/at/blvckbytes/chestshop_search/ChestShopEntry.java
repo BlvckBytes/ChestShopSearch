@@ -86,6 +86,9 @@ public class ChestShopEntry {
   }
 
   public int calculateSpace() {
+    if (containerSize < 0)
+      return -1;
+
     var maximumCapacity = containerSize * item.getMaxStackSize();
     return Math.max(0, maximumCapacity - stock);
   }
