@@ -56,12 +56,12 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
       }
 
       if (config.rootSection.resultDisplay.items.sorting.getDisplaySlots().contains(slot)) {
-        display.nextSortingSelection();
+        display.nextSortingOrder();
         return;
       }
 
       if (config.rootSection.resultDisplay.items.filtering.getDisplaySlots().contains(slot)) {
-        display.nextFilteringCriterion();
+        display.nextFilteringState();
         return;
       }
 
@@ -86,12 +86,12 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
       }
 
       if (config.rootSection.resultDisplay.items.sorting.getDisplaySlots().contains(slot)) {
-        display.nextSortingOrder();
+        display.resetSortingState();
         return;
       }
 
       if (config.rootSection.resultDisplay.items.filtering.getDisplaySlots().contains(slot)) {
-        display.nextFilteringState();
+        display.resetFilteringState();
         return;
       }
 
@@ -102,19 +102,17 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
 
     if (clickType == ClickType.DROP) {
       if (config.rootSection.resultDisplay.items.sorting.getDisplaySlots().contains(slot))
-        display.moveSortingSelectionDown();
+        display.nextSortingSelection();
+
+      if (config.rootSection.resultDisplay.items.filtering.getDisplaySlots().contains(slot))
+        display.nextFilteringCriterion();
 
       return;
     }
 
     if (clickType == ClickType.CONTROL_DROP) {
-      if (config.rootSection.resultDisplay.items.sorting.getDisplaySlots().contains(slot)) {
-        display.resetSortingState();
-        return;
-      }
-
-      if (config.rootSection.resultDisplay.items.filtering.getDisplaySlots().contains(slot))
-        display.resetFilteringState();
+      if (config.rootSection.resultDisplay.items.sorting.getDisplaySlots().contains(slot))
+        display.moveSortingSelectionDown();
     }
   }
 

@@ -175,10 +175,10 @@ resultDisplay:
               & (lut["sortingCriteria"][str(entry.criterion)] ?? "&4?")
             )),
             @{ANY-CONTROL-LORE-SPACER},
-            @{SORTING-LORE-LEFT-CLICK-DESCRIPTION},
-            @{SORTING-LORE-RIGHT-CLICK-DESCRIPTION},
             @{SORTING-LORE-DROP-DESCRIPTION},
+            @{SORTING-LORE-LEFT-CLICK-DESCRIPTION},
             @{SORTING-LORE-DROP-ALL-DESCRIPTION},
+            @{SORTING-LORE-RIGHT-CLICK-DESCRIPTION},
             @{ANY-CONTROL-LORE-SPACER}
           )
     # - filtering_selections: Map<ShopFilteringCriteria, PredicateSelection>
@@ -203,9 +203,9 @@ resultDisplay:
               & (lut["filteringCriteria"][str(key(entry))] ?? "&4?")
             )),
             @{ANY-CONTROL-LORE-SPACER},
+            @{FILTERING-LORE-DROP-DESCRIPTION},
             @{FILTERING-LORE-LEFT-CLICK-DESCRIPTION},
             @{FILTERING-LORE-RIGHT-CLICK-DESCRIPTION},
-            @{FILTERING-LORE-DROP-ALL-DESCRIPTION},
             @{ANY-CONTROL-LORE-SPACER}
           )
     # https://github.com/BlvckBytes/BukkitEvaluable#itemstack-section

@@ -76,10 +76,10 @@ SORTING-LORE-CRITERIA-OWNER-NAME          Besitzer
 SORTING-LORE-CRITERIA-STOCK-LEFT          Lagerbestand
 SORTING-LORE-CRITERIA-SPACE-LEFT          Platz
 SORTING-LORE-CRITERIA-ITEM-TYPE           Item-Typ
-SORTING-LORE-LEFT-CLICK-DESCRIPTION       &8➥ &eLinksklick &7Kriterium auswählen
-SORTING-LORE-RIGHT-CLICK-DESCRIPTION      &8➥ &eRechtsklick &7Sortierrichtung ändern
-SORTING-LORE-DROP-DESCRIPTION             &8➥ &eWerfen &7Kriterium nach unten verschieben
-SORTING-LORE-DROP-ALL-DESCRIPTION         &8➥ &eAlle werfen &7Auswahlen zurücksetzen
+SORTING-LORE-DROP-DESCRIPTION             &8➥ &eWerfen &7Kriterium auswählen
+SORTING-LORE-LEFT-CLICK-DESCRIPTION       &8➥ &eLinksklick &7Sortierrichtung ändern
+SORTING-LORE-DROP-ALL-DESCRIPTION         &8➥ &eAlle werfen &7Kriterium nach unten verschieben
+SORTING-LORE-RIGHT-CLICK-DESCRIPTION      &8➥ &eRechtsklick &7Auswahlen zurücksetzen
 
 FILTERING-NAME                             &8» &6Filtern &8«
 FILTERING-LORE-NO-PERMISSION               &8➥ &cKeine Berechtigung zum Filtern der Ergebnisse
@@ -93,8 +93,8 @@ FILTERING-LORE-CRITERIA-CAN-BUY            Kaufen
 FILTERING-LORE-CRITERIA-CAN-SELL           Verkaufen
 FILTERING-LORE-CRITERIA-HAS-STOCK-LEFT     Hat Lagerbestand
 FILTERING-LORE-CRITERIA-HAS-SPACE-LEFT     Hat Platz
-FILTERING-LORE-LEFT-CLICK-DESCRIPTION      &8➥ &eLinksklick &7Kriterium auswählen
-FILTERING-LORE-RIGHT-CLICK-DESCRIPTION     &8➥ &eRechtsklick &7Zustand umschalten
-FILTERING-LORE-DROP-ALL-DESCRIPTION        &8➥ &eAlle werfen &7Auswahlen zurücksetzen
+FILTERING-LORE-DROP-DESCRIPTION            &8➥ &eWerfen &7Kriterium auswählen
+FILTERING-LORE-LEFT-CLICK-DESCRIPTION      &8➥ &eLinksklick &7Zustand umschalten
+FILTERING-LORE-RIGHT-CLICK-DESCRIPTION     &8➥ &eRechtsklick &7Auswahlen zurücksetzen
 
 # ==================== END ResultDisplay ====================
