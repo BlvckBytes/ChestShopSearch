@@ -16,6 +16,10 @@ commands:
     name: shopsearch
     aliases:
       - shs
+  shopOverview:
+    name: shopoverview
+    aliases:
+      - sho
   shopSearchLanguage:
     name: shopsearchlanguage
     aliases:
@@ -24,6 +28,10 @@ commands:
     name: shopsearchtoggle
     aliases:
       - shst
+  shopSearchReload:
+    name: shopsearchreload
+    aliases:
+      - shsrl
 
 regionFilter:
   shopRegionPattern: '^(shop[0-9]+)|adminshop$'
@@ -45,6 +53,9 @@ playerMessages:
   shopSearchToggleNotInARegion: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOT-IN-A-REGION(prefix=lut["MESSAGE_PREFIX"])}'
   shopSearchToggleNowVisible: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOW-VISIBLE(prefix=lut["MESSAGE_PREFIX"])}'
   shopSearchToggleNowInvisible: '@{MESSAGE-SHOP-SEARCH-TOGGLE-NOW-INVISIBLE(prefix=lut["MESSAGE_PREFIX"])}'
+
+  pluginReloadedSuccess: '@{MESSAGE-PLUGIN-RELOAD(prefix=lut["MESSAGE_PREFIX"])}'
+  pluginReloadedError: '@{MESSAGE-PLUGIN-RELOAD-ERROR(prefix=lut["MESSAGE_PREFIX"])}'
 
 # - owner: String?
 # - current_page: Integer

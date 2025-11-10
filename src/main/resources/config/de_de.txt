@@ -15,6 +15,9 @@ MESSAGE-SHOP-SEARCH-TOGGLE-NOT-IN-A-REGION {prefix} &cDu befindest dich aktuell 
 MESSAGE-SHOP-SEARCH-TOGGLE-NOW-VISIBLE     {prefix} &7Die Sichtbarkeit der Region &a{region} &7von &a{owner} &7ist nun &aaktiviert&7!
 MESSAGE-SHOP-SEARCH-TOGGLE-NOW-INVISIBLE   {prefix} &7Die Sichtbarkeit der Region &a{region} &7von &a{owner} &7ist nun &cdeaktiviert&7!
 
+MESSAGE-PLUGIN-RELOAD                       {prefix} &7Das Plugin wurde erfolgreich &eneu geladen&7.
+MESSAGE-PLUGIN-RELOAD-ERROR                 {prefix} &cEin Fehler trat während des Ladeprozesses auf. Überprüfe die Konsole!
+
 # ==================== BEGIN ResultDisplay ====================
 
 # - current_page: Integer

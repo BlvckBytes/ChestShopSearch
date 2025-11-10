@@ -52,6 +52,10 @@ public class ChestShopRegistry {
 
     this.shopByFastHashByWorldId = new HashMap<>();
     this.shopOwnerByNameLower = new HashMap<>();
+
+    config.registerReloadListener(() -> {
+      forEachKnownShop(ChestShopEntry::updateBuildable);
+    });
   }
 
   private boolean checkIfShopIsHidden(ChestShopEntry shopEntry, RegionManager regionManager) {

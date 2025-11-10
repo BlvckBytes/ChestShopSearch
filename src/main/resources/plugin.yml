@@ -13,3 +13,6 @@ commands:
     description: 'Choose a personal language for search-predicates'
   shopoverview:
     description: 'Browse through shops grouped by their owners'
+  shopsearchreload:
+    description: 'Reload the configuration-file of this plugin'
+    permission: 'chestshopsearch.reload'

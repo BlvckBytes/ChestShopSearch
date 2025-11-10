@@ -11,6 +11,7 @@ public class CommandsSection extends AConfigSection {
   public ShopSearchLanguageCommandSection shopSearchLanguage;
   public ShopSearchToggleCommandSection shopSearchToggle;
   public ShopOverviewCommandSection shopOverview;
+  public ShopSearchReloadCommandSection shopSearchReload;
 
   public CommandsSection(EvaluationEnvironmentBuilder baseEnvironment) {
     super(baseEnvironment);

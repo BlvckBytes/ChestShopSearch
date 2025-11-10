@@ -21,6 +21,9 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable shopSearchToggleNowVisible;
   public BukkitEvaluable shopSearchToggleNowInvisible;
 
+  public BukkitEvaluable pluginReloadedSuccess;
+  public BukkitEvaluable pluginReloadedError;
+
   public PlayerMessagesSection(EvaluationEnvironmentBuilder baseEnvironment) {
     super(baseEnvironment);
   }
