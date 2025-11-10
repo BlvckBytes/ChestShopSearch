@@ -82,7 +82,6 @@ SORTING-LORE-DROP-ALL-DESCRIPTION         &8➥ &eAlle werfen &7Kriterium nach u
 SORTING-LORE-RIGHT-CLICK-DESCRIPTION      &8➥ &eRechtsklick &7Auswahlen zurücksetzen
 
 FILTERING-NAME                             &8» &6Filtern &8«
-FILTERING-LORE-NO-PERMISSION               &8➥ &cKeine Berechtigung zum Filtern der Ergebnisse
 FILTERING-LORE-ENTRY-PREFIX-ACTIVE         &e➥ \
 FILTERING-LORE-ENTRY-PREFIX-INACTIVE       &8➥ \
 FILTERING-LORE-SELECTION-STYLE-POSITIVE    &a

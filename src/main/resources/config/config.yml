@@ -155,7 +155,6 @@ resultDisplay:
         - '@{ANY-CONTROL-LORE-SPACER}'
     # - sorting_selections: Iterable<SortingCriterionSelection>
     # - selected_index: Integer
-    # - has_permission: Boolean
     # https://github.com/BlvckBytes/BukkitEvaluable#itemstack-section
     sorting:
       slots$: 'last_slot - 6'
@@ -183,7 +182,6 @@ resultDisplay:
           )
     # - filtering_selections: Map<ShopFilteringCriteria, PredicateSelection>
     # - selected_criteria: ShopFilteringCriteria
-    # - has_permission: Boolean
     # https://github.com/BlvckBytes/BukkitEvaluable#itemstack-section
     filtering:
       slots$: 'last_slot - 2'
