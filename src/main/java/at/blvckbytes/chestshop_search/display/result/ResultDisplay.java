@@ -56,6 +56,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
     this.pageEnvironment = new EvaluationEnvironmentBuilder()
       .withLiveVariable("current_page", () -> this.currentPage)
       .withLiveVariable("number_pages", () -> this.numberOfPages)
+      .withStaticVariable("owner", displayData.overviewDisplayInfo() == null ? null : displayData.overviewDisplayInfo().owner().name)
       .build(config.rootSection.resultDisplay.inventoryEnvironment);
 
     this.sortingEnvironment = this.selectionState
@@ -261,6 +262,9 @@ public class ResultDisplay extends Display<ResultDisplayData> {
 
     // Render filler first, such that it may be overridden by conditionally displayed items
     config.rootSection.resultDisplay.items.filler.renderInto(inventory, pageEnvironment);
+
+    if (displayData.overviewDisplayInfo() != null)
+      config.rootSection.resultDisplay.items.backButton.renderInto(inventory, pageEnvironment);
 
     config.rootSection.resultDisplay.items.previousPage.renderInto(inventory, pageEnvironment);
     config.rootSection.resultDisplay.items.nextPage.renderInto(inventory, pageEnvironment);

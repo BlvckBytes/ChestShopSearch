@@ -1,12 +1,15 @@
 package at.blvckbytes.chestshop_search;
 
+import at.blvckbytes.chestshop_search.command.ShopOverviewCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchLanguageCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchToggleCommand;
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.chestshop_search.config.command.ShopOverviewCommandSection;
 import at.blvckbytes.chestshop_search.config.command.ShopSearchCommandSection;
 import at.blvckbytes.chestshop_search.config.command.ShopSearchLanguageCommandSection;
 import at.blvckbytes.chestshop_search.config.command.ShopSearchToggleCommandSection;
+import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
 import com.cryptomorin.xseries.XMaterial;
@@ -32,6 +35,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
   private @Nullable NameScopedKeyValueStore keyValueStore;
   private @Nullable SelectionStateStore selectionStateStore;
   private @Nullable ResultDisplayHandler resultDisplayHandler;
+  private @Nullable OverviewDisplayHandler overviewDisplayHandler;
 
   @Override
   public void onEnable() {
@@ -46,7 +50,9 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var configManager = new ConfigManager(this, "config");
       var config = new ConfigKeeper<>(configManager, "config.yml", MainSection.class);
 
-      chestShopRegistry = new ChestShopRegistry(keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
+      var texturesManager = new SkullTexturesManager(this, logger);
+
+      chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
 
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
@@ -65,24 +71,30 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20L * 5, 20L * 5);
 
       selectionStateStore = new SelectionStateStore(this, logger);
-      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, this);
 
+      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, this);
       Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
+
+      overviewDisplayHandler = new OverviewDisplayHandler(resultDisplayHandler, chestShopRegistry, config, this);
+      Bukkit.getServer().getPluginManager().registerEvents(overviewDisplayHandler, this);
 
       var commandUpdater = new CommandUpdater(this);
 
       var shopSearchCommand = Objects.requireNonNull(getCommand(ShopSearchCommandSection.INITIAL_NAME));
       var shopSearchLanguageCommand = Objects.requireNonNull(getCommand(ShopSearchLanguageCommandSection.INITIAL_NAME));
       var shopSearchToggleCommand = Objects.requireNonNull(getCommand(ShopSearchToggleCommandSection.INITIAL_NAME));
+      var shopOverviewCommand = Objects.requireNonNull(getCommand(ShopOverviewCommandSection.INITIAL_NAME));
 
       shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
       shopSearchLanguageCommand.setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
       shopSearchToggleCommand.setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
+      shopOverviewCommand.setExecutor(new ShopOverviewCommand(chestShopRegistry, overviewDisplayHandler));
 
       Runnable updateCommands = () -> {
         config.rootSection.commands.shopSearch.apply(shopSearchCommand, commandUpdater);
         config.rootSection.commands.shopSearchLanguage.apply(shopSearchLanguageCommand, commandUpdater);
         config.rootSection.commands.shopSearchToggle.apply(shopSearchToggleCommand, commandUpdater);
+        config.rootSection.commands.shopOverview.apply(shopOverviewCommand, commandUpdater);
 
         commandUpdater.trySyncCommands();
       };
@@ -115,6 +127,11 @@ public class ChestShopSearchPlugin extends JavaPlugin {
     if (resultDisplayHandler != null) {
       resultDisplayHandler.onShutdown();
       resultDisplayHandler = null;
+    }
+
+    if (overviewDisplayHandler != null) {
+      overviewDisplayHandler.onShutdown();
+      overviewDisplayHandler = null;
     }
   }
 

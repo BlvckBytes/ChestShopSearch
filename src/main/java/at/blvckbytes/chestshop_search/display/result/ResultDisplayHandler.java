@@ -41,6 +41,15 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
         return;
       }
 
+      if (config.rootSection.resultDisplay.items.backButton.getDisplaySlots().contains(slot)) {
+        var overviewInfo = display.displayData.overviewDisplayInfo();
+
+        if (overviewInfo != null)
+          overviewInfo.overviewDisplay().reopen();
+
+        return;
+      }
+
       if (config.rootSection.resultDisplay.items.nextPage.getDisplaySlots().contains(slot)) {
         display.nextPage();
         return;

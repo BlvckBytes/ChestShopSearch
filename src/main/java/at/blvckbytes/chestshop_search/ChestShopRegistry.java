@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,25 +26,32 @@ public class ChestShopRegistry {
 
   private static final Gson GSON_INSTANCE = new GsonBuilder().setPrettyPrinting().create();
 
+  private final SkullTexturesManager texturesManager;
   private final NameScopedKeyValueStore keyValueStore;
   private final RegionContainer regionContainer;
   private final File persistenceFile;
   private final ConfigKeeper<MainSection> config;
   private final Logger logger;
+
   private final Map<WorldAndRegionManager, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
+  private final Map<String, ShopOwner> shopOwnerByNameLower;
 
   public ChestShopRegistry(
+    SkullTexturesManager texturesManager,
     NameScopedKeyValueStore keyValueStore,
     File persistenceFile,
     ConfigKeeper<MainSection> config,
     Logger logger
   ) {
+    this.texturesManager = texturesManager;
     this.keyValueStore = keyValueStore;
     this.regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
     this.persistenceFile = persistenceFile;
     this.config = config;
     this.logger = logger;
+
     this.shopByFastHashByWorldId = new HashMap<>();
+    this.shopOwnerByNameLower = new HashMap<>();
   }
 
   private boolean checkIfShopIsHidden(ChestShopEntry shopEntry, RegionManager regionManager) {
@@ -62,6 +68,10 @@ public class ChestShopRegistry {
     }
 
     return false;
+  }
+
+  public List<ShopOwner> getKnownOwners() {
+    return new ArrayList<>(shopOwnerByNameLower.values());
   }
 
   public void forEachKnownShop(Consumer<ChestShopEntry> consumer) {
@@ -121,8 +131,11 @@ public class ChestShopRegistry {
         var signLocation = shopEntry.signLocation;
         var worldBucket = getOrCreateWorldBucket(signLocation);
 
-        if (worldBucket != null)
-          worldBucket.put(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()), shopEntry);
+        if (worldBucket == null)
+          continue;
+
+        worldBucket.put(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()), shopEntry);
+        registerOwnerName(shopEntry.owner);
 
         ++loadedCounter;
       }
@@ -146,15 +159,30 @@ public class ChestShopRegistry {
     var signLocation = chestShopEntry.signLocation;
     var worldBucket = getOrCreateWorldBucket(signLocation);
 
-    if (worldBucket != null)
-      worldBucket.put(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()), chestShopEntry);
+    if (worldBucket == null)
+      return;
+
+    worldBucket.put(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()), chestShopEntry);
+    registerOwnerName(chestShopEntry.owner);
+  }
+
+  private void registerOwnerName(String name) {
+    if (name.equalsIgnoreCase("Adminshop"))
+      return;
+
+    shopOwnerByNameLower.computeIfAbsent(name.toLowerCase(), key -> new ShopOwner(name, texturesManager));
   }
 
   public void onDestruction(Location signLocation) {
     var worldBucket = getOrCreateWorldBucket(signLocation);
 
-    if (worldBucket != null)
-      worldBucket.remove(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()));
+    if (worldBucket == null)
+      return;
+
+    var shopEntry = worldBucket.remove(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()));
+
+    if (shopEntry != null)
+      shopOwnerByNameLower.remove(shopEntry.owner.toLowerCase());
   }
 
   public void onTransaction(Location signLocation, int amount, boolean wasBuy) {

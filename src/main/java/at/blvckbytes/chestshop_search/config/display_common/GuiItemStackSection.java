@@ -20,7 +20,7 @@ public class GuiItemStackSection extends ItemStackSection {
   private @Nullable BukkitEvaluable slots;
 
   @CSIgnore
-  private IItemBuildable buildable;
+  public IItemBuildable buildable;
 
   @CSIgnore
   private @Nullable Set<Integer> displaySlots;

@@ -10,6 +10,7 @@ public class CommandsSection extends AConfigSection {
   public ShopSearchCommandSection shopSearch;
   public ShopSearchLanguageCommandSection shopSearchLanguage;
   public ShopSearchToggleCommandSection shopSearchToggle;
+  public ShopOverviewCommandSection shopOverview;
 
   public CommandsSection(EvaluationEnvironmentBuilder baseEnvironment) {
     super(baseEnvironment);

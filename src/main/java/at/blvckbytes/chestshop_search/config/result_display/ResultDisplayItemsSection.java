@@ -14,6 +14,8 @@ public class ResultDisplayItemsSection extends AConfigSection {
   public GuiItemStackSection sorting;
   public GuiItemStackSection filtering;
   public GuiItemStackSection filler;
+  public GuiItemStackSection shopOwner;
+  public GuiItemStackSection backButton;
   public ItemStackSection representativePatch;
 
   public ResultDisplayItemsSection(EvaluationEnvironmentBuilder baseEnvironment) {

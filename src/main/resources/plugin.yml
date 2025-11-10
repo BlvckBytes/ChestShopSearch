@@ -11,3 +11,5 @@ commands:
     description: 'Toggle whether your current region participates in the global search'
   shopsearchlanguage:
     description: 'Choose a personal language for search-predicates'
+  shopoverview:
+    description: 'Browse through shops grouped by their owners'

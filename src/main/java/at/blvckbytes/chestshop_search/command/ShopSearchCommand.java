@@ -105,7 +105,7 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
         .build()
     );
 
-    resultDisplayHandler.show(player, new ResultDisplayData(results));
+    resultDisplayHandler.show(player, new ResultDisplayData(null, results));
 
     return true;
   }

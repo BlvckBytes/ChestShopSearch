@@ -21,6 +21,8 @@ MESSAGE-SHOP-SEARCH-TOGGLE-NOW-INVISIBLE   {prefix} &7Die Sichtbarkeit der Regio
 # - number_pages: Integer
 
 RESULT-DISPLAY-TITLE                        &8Shopsuche &e{current_page}&8/&e{number_pages}
+# - owner: String
+RESULT-DISPLAY-TITLE-FOR-OWNER              &8{owner}'s Shops &e{current_page}&8/&e{number_pages}
 
 ANY-CONTROL-LORE-SPACER                     &8&m                                                  \
 
@@ -52,6 +54,12 @@ REPRESENTATIVE-LORE-REMAINING-STOCK          &8♦ &7Lagerbestand: &e{remaining_
 # - loc_world: String
 REPRESENTATIVE-LORE-LOCATION-COORDINATES     &8♦ &7Koordinaten: &e{loc_x} {loc_y} {loc_z}
 REPRESENTATIVE-LORE-LOCATION-WORLD           &8♦ &7Welt: &e{loc_world}
+
+SHOP-OWNER-NAME &8» &6{owner} &8«
+SHOP-OWNER-LORE-DESCRIPTION &8➥ &eLinksklick &7Angebote anzeigen
+
+BACK-BUTTON-NAME &8» &6Zurück &8«
+BACK-BUTTON-LORE-LEFT-CLICK-DESCRIPTION &8➥ &eLinksklick &7Gelange zurück zur Übersicht
 
 SORTING-NAME                              &8» &6Sortierung &8«
 SORTING-LORE-ENTRY-PREFIX-ACTIVE          &e➥ \
