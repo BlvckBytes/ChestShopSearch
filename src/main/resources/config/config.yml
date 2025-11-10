@@ -1,4 +1,29 @@
+# ______________             __________________               ________                        ______
+#   __  ____/__  /_______________  /__  ___/__  /_________________  ___/__________ ________________  /_
+#   _  /    __  __ \  _ \_  ___/  __/____ \__  __ \  __ \__  __ \____ \_  _ \  __ `/_  ___/  ___/_  __ \
+#   / /___  _  / / /  __/(__  )/ /_ ____/ /_  / / / /_/ /_  /_/ /___/ //  __/ /_/ /_  /   / /__ _  / / /
+#   \____/  /_/ /_/\___//____/ \__/ /____/ /_/ /_/\____/_  .___//____/ \___/\__,_/ /_/    \___/ /_/ /_/
+#   /_/
+#
+# ChestShopSearch - Developed by BlvckBytes <blvckbytes@gmail.com>
+# Repository - https://github.com/BlvckBytes/ChestShopSearch
+# ASCII-Art - https://patorjk.com/software/taag/#p=display&f=Speed
+#
 # PRE-PROCESSOR-INPUT de_de.txt
+
+commands:
+  shopSearch:
+    name: shopsearch
+    aliases:
+      - shs
+  shopSearchLanguage:
+    name: shopsearchlanguage
+    aliases:
+      - shsl
+  shopSearchToggle:
+    name: shopsearchtoggle
+    aliases:
+      - shst
 
 regionFilter:
   shopRegionPattern: '^(shop[0-9]+)|adminshop$'

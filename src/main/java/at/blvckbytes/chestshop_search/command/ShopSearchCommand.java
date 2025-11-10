@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
+public class ShopSearchCommand implements CommandExecutor, TabCompleter {
 
   private final ChestShopRegistry chestShopRegistry;
   private final PredicateHelper predicateHelper;
@@ -32,7 +32,7 @@ public class ChestShopSearchCommand implements CommandExecutor, TabCompleter {
   private final ResultDisplayHandler resultDisplayHandler;
   private final ConfigKeeper<MainSection> config;
 
-  public ChestShopSearchCommand(
+  public ShopSearchCommand(
     ChestShopRegistry chestShopRegistry,
     PredicateHelper predicateHelper,
     NameScopedKeyValueStore keyValueStore,

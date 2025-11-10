@@ -1,15 +1,19 @@
 package at.blvckbytes.chestshop_search;
 
-import at.blvckbytes.chestshop_search.command.ChestShopSearchCommand;
+import at.blvckbytes.chestshop_search.command.ShopSearchCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchLanguageCommand;
 import at.blvckbytes.chestshop_search.command.ShopSearchToggleCommand;
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.chestshop_search.config.command.ShopSearchCommandSection;
+import at.blvckbytes.chestshop_search.config.command.ShopSearchLanguageCommandSection;
+import at.blvckbytes.chestshop_search.config.command.ShopSearchToggleCommandSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
 import com.cryptomorin.xseries.XMaterial;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import me.blvckbytes.bukkitevaluable.CommandUpdater;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.bukkitevaluable.ConfigManager;
 import me.blvckbytes.item_predicate_parser.ItemPredicateParserPlugin;
@@ -65,9 +69,26 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
 
-      Objects.requireNonNull(getCommand("shopsearch")).setExecutor(new ChestShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
-      Objects.requireNonNull(getCommand("shopsearchlanguage")).setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
-      Objects.requireNonNull(getCommand("shopsearchtoggle")).setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
+      var commandUpdater = new CommandUpdater(this);
+
+      var shopSearchCommand = Objects.requireNonNull(getCommand(ShopSearchCommandSection.INITIAL_NAME));
+      var shopSearchLanguageCommand = Objects.requireNonNull(getCommand(ShopSearchLanguageCommandSection.INITIAL_NAME));
+      var shopSearchToggleCommand = Objects.requireNonNull(getCommand(ShopSearchToggleCommandSection.INITIAL_NAME));
+
+      shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
+      shopSearchLanguageCommand.setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
+      shopSearchToggleCommand.setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
+
+      Runnable updateCommands = () -> {
+        config.rootSection.commands.shopSearch.apply(shopSearchCommand, commandUpdater);
+        config.rootSection.commands.shopSearchLanguage.apply(shopSearchLanguageCommand, commandUpdater);
+        config.rootSection.commands.shopSearchToggle.apply(shopSearchToggleCommand, commandUpdater);
+
+        commandUpdater.trySyncCommands();
+      };
+
+      updateCommands.run();
+      config.registerReloadListener(updateCommands);
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);
       Bukkit.getPluginManager().disablePlugin(this);
