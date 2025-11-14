@@ -16,13 +16,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.logging.Level;
@@ -60,24 +63,38 @@ public class ShopDataListener implements Listener {
     chestShopRegistry.onTransaction(event.getSign().getLocation(), totalAmountTransferred, event.getTransactionType() == TransactionEvent.TransactionType.BUY);
   }
 
+  private @Nullable Sign getInventoryShopSign(@Nullable InventoryHolder inventoryHolder) {
+    if (inventoryHolder == null)
+      return null;
+
+    if (inventoryHolder instanceof Container container)
+      return uBlock.getConnectedSign(container);
+
+    if (inventoryHolder instanceof DoubleChest doubleChest) {
+      var leftSign = getInventoryShopSign(doubleChest.getLeftSide());
+
+      if (leftSign != null)
+        return leftSign;
+
+      return getInventoryShopSign(doubleChest.getRightSide());
+    }
+
+    return null;
+  }
+
   @EventHandler
   public void onInventoryClose(InventoryCloseEvent event) {
-    if (!(event.getInventory().getHolder() instanceof Container container))
-      return;
+    var shopSign = getInventoryShopSign(event.getInventory().getHolder());
 
-    var shopSign = uBlock.getConnectedSign(container);
-
-    if (shopSign == null) {
-      logger.log(Level.WARNING, "Sign-response was null for shop at " + container.getLocation() + " while updating");
+    if (shopSign == null)
       return;
-    }
 
     var itemParseEvent = new ItemParseEvent(ChestShopSign.getItem(shopSign));
     Bukkit.getPluginManager().callEvent(itemParseEvent);
     var shopItem = itemParseEvent.getItem();
 
     if (shopItem == null || shopItem.getType() == Material.AIR) {
-      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + container.getLocation() + " while updating");
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + shopSign.getLocation() + " while updating");
       return;
     }
 
