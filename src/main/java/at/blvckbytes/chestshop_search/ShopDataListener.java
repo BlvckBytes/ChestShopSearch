@@ -67,15 +67,19 @@ public class ShopDataListener implements Listener {
 
     var shopSign = uBlock.getConnectedSign(container);
 
-    if (shopSign == null)
+    if (shopSign == null) {
+      logger.log(Level.WARNING, "Sign-response was null for shop at " + container.getLocation() + " while updating");
       return;
+    }
 
     var itemParseEvent = new ItemParseEvent(ChestShopSign.getItem(shopSign));
     Bukkit.getPluginManager().callEvent(itemParseEvent);
     var shopItem = itemParseEvent.getItem();
 
-    if (shopItem == null)
+    if (shopItem == null || shopItem.getType() == Material.AIR) {
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + container.getLocation() + " while updating");
       return;
+    }
 
     var stock = InventoryUtil.getAmount(shopItem, event.getInventory());
 
@@ -121,7 +125,7 @@ public class ShopDataListener implements Listener {
     var shopItem = itemParseEvent.getItem();
 
     if (shopItem == null || shopItem.getType() == Material.AIR) {
-      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + signLocation);
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + signLocation + " while registering");
       return;
     }
 
