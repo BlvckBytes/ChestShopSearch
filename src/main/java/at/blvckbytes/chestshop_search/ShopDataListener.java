@@ -14,6 +14,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
@@ -24,24 +25,29 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ShopDataListener implements Listener {
 
   private final Plugin plugin;
   private final ChestShopRegistry chestShopRegistry;
   private final ConfigKeeper<MainSection> config;
+  private final Logger logger;
   public final Set<ProtectedRegion> shopRegions;
 
   public ShopDataListener(
     Plugin plugin,
     ChestShopRegistry chestShopRegistry,
     Set<ProtectedRegion> shopRegions,
-    ConfigKeeper<MainSection> config
+    ConfigKeeper<MainSection> config,
+    Logger logger
   ) {
     this.plugin = plugin;
     this.chestShopRegistry = chestShopRegistry;
     this.shopRegions = shopRegions;
     this.config = config;
+    this.logger = logger;
   }
 
   @EventHandler
@@ -78,7 +84,7 @@ public class ShopDataListener implements Listener {
 
   @EventHandler
   public void onShopCreated(ShopCreatedEvent event) {
-    Bukkit.getScheduler().runTask(plugin, () -> possiblyRegisterShop(event.getSign(), false));
+    Bukkit.getScheduler().runTask(plugin, () -> possiblyRegisterShop(event.getSign(), event.getSignLines(), false));
   }
 
   @EventHandler
@@ -98,35 +104,42 @@ public class ShopDataListener implements Listener {
         if (!ChestShopSign.isValid(sign))
           continue;
 
-        possiblyRegisterShop(sign, true);
+        //noinspection deprecation
+        possiblyRegisterShop(sign, sign.getLines(), true);
       }
     }
   }
 
-  private void possiblyRegisterShop(Sign shopSign, boolean wasOnChunkLoad) {
+  private void possiblyRegisterShop(Sign shopSign, String[] signLines, boolean wasOnChunkLoad) {
     var signLocation = shopSign.getLocation();
 
     if (wasOnChunkLoad && chestShopRegistry.getShopAtLocation(signLocation) != null)
       return;
 
-    var itemParseEvent = new ItemParseEvent(ChestShopSign.getItem(shopSign));
+    var itemParseEvent = new ItemParseEvent(ChestShopSign.getItem(signLines));
     Bukkit.getPluginManager().callEvent(itemParseEvent);
     var shopItem = itemParseEvent.getItem();
 
-    if (shopItem == null)
+    if (shopItem == null || shopItem.getType() == Material.AIR) {
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + signLocation);
       return;
+    }
 
-    var owner = ChestShopSign.getOwner(shopSign);
+    var owner = ChestShopSign.getOwner(signLines);
 
-    if (owner.isBlank())
+    if (owner.isBlank()) {
+      logger.log(Level.WARNING, "Owner was blank for shop at " + signLocation);
       return;
+    }
 
-    var priceLine = ChestShopSign.getPrice(shopSign);
+    var priceLine = ChestShopSign.getPrice(signLines);
     var buyPrice = PriceUtil.getExactBuyPrice(priceLine).doubleValue();
     var sellPrice = PriceUtil.getExactSellPrice(priceLine).doubleValue();
 
-    if (buyPrice < 0 && sellPrice < 0)
+    if (buyPrice <= 0 && sellPrice <= 0) {
+      logger.log(Level.WARNING, "No prices for shop at " + signLocation);
       return;
+    }
 
     int stock = -1;
     int size = -1;
@@ -146,11 +159,18 @@ public class ShopDataListener implements Listener {
       }
     }
 
+    var quantity = ChestShopSign.getQuantity(signLines);
+
+    if (quantity <= 0) {
+      logger.log(Level.WARNING, "No quantity for shop at " + signLocation);
+      return;
+    }
+
     var shopEntry = new ChestShopEntry(
       shopItem,
       owner,
       signLocation,
-      ChestShopSign.getQuantity(shopSign),
+      quantity,
       buyPrice,
       sellPrice,
       stock,

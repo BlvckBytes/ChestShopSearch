@@ -50,7 +50,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
-      var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config);
+      var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config, logger);
       getServer().getPluginManager().registerEvents(dataListener, this);
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, chestShopRegistry::save, 20L * 30, 20L * 300);
