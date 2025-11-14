@@ -6,13 +6,16 @@ import at.blvckbytes.chestshop_search.display.Display;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
 import me.blvckbytes.gpeee.interpreter.IEvaluationEnvironment;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ResultDisplay extends Display<ResultDisplayData> {
 
@@ -22,6 +25,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   private List<ChestShopEntry> filteredSortedShops;
 
   private final ChestShopEntry[] slotMap;
+  private final Set<Location> currentlyRenderedSignLocations;
   private int numberOfPages;
   public final SelectionState selectionState;
 
@@ -42,6 +46,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
 
     this.asyncQueue = new AsyncTaskQueue(plugin);
     this.slotMap = new ChestShopEntry[9 * 6];
+    this.currentlyRenderedSignLocations = new HashSet<>();
     this.selectionState = selectionState;
 
     setupEnvironments();
@@ -90,6 +95,11 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void onShutdown() {
     clearSlotMap();
     super.onShutdown();
+  }
+
+  public void onShopStockChange(ChestShopEntry entry) {
+    if (currentlyRenderedSignLocations.contains(entry.signLocation))
+      renderItems();
   }
 
   public void clearSlotMap() {
@@ -242,6 +252,8 @@ public class ResultDisplay extends Display<ResultDisplayData> {
     var itemsIndex = (currentPage - 1) * displaySlots.size();
     var numberOfItems = filteredSortedShops.size();
 
+    currentlyRenderedSignLocations.clear();
+
     for (var slot : displaySlots) {
       var currentSlot = itemsIndex++;
 
@@ -258,6 +270,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
       ));
 
       slotMap[slot] = cachedShop;
+      currentlyRenderedSignLocations.add(cachedShop.signLocation);
     }
 
     // Render filler first, such that it may be overridden by conditionally displayed items

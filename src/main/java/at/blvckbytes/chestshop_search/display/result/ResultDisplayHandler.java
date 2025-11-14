@@ -25,6 +25,10 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
     this.stateStore = stateStore;
   }
 
+  public void onStockChange(ChestShopEntry shop) {
+    forEachDisplay(display -> display.onShopStockChange(shop));
+  }
+
   @Override
   public ResultDisplay instantiateDisplay(Player player, ResultDisplayData displayData) {
     var selectionState = stateStore.loadState(player);

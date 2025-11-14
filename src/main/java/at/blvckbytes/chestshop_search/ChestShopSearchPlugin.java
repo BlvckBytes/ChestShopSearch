@@ -46,7 +46,12 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       var texturesManager = new SkullTexturesManager(this, logger);
 
-      chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
+      selectionStateStore = new SelectionStateStore(this, logger);
+
+      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, this);
+      Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
+
+      chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, resultDisplayHandler, getFileAndEnsureExistence("known-shops.json"), config, logger);
 
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
@@ -63,11 +68,6 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var predicateHelper = parserPlugin.getPredicateHelper();
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20L * 5, 20L * 5);
-
-      selectionStateStore = new SelectionStateStore(this, logger);
-
-      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, this);
-      Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
 
       overviewDisplayHandler = new OverviewDisplayHandler(resultDisplayHandler, chestShopRegistry, config, this);
       Bukkit.getServer().getPluginManager().registerEvents(overviewDisplayHandler, this);
