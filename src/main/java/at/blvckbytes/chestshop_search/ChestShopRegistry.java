@@ -1,7 +1,6 @@
 package at.blvckbytes.chestshop_search;
 
 import at.blvckbytes.chestshop_search.config.MainSection;
-import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -30,18 +29,17 @@ public class ChestShopRegistry {
   private final SkullTexturesManager texturesManager;
   private final NameScopedKeyValueStore keyValueStore;
   private final RegionContainer regionContainer;
-  private final ResultDisplayHandler resultDisplayHandler;
   private final File persistenceFile;
   private final ConfigKeeper<MainSection> config;
   private final Logger logger;
 
   private final Map<WorldAndRegionManager, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
   private final Map<String, ShopOwner> shopOwnerByNameLower;
+  private final List<Consumer<ChestShopEntry>> stockChangeListeners;
 
   public ChestShopRegistry(
     SkullTexturesManager texturesManager,
     NameScopedKeyValueStore keyValueStore,
-    ResultDisplayHandler resultDisplayHandler,
     File persistenceFile,
     ConfigKeeper<MainSection> config,
     Logger logger
@@ -49,17 +47,24 @@ public class ChestShopRegistry {
     this.texturesManager = texturesManager;
     this.keyValueStore = keyValueStore;
     this.regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
-    this.resultDisplayHandler = resultDisplayHandler;
     this.persistenceFile = persistenceFile;
     this.config = config;
     this.logger = logger;
 
     this.shopByFastHashByWorldId = new HashMap<>();
     this.shopOwnerByNameLower = new HashMap<>();
+    this.stockChangeListeners = new ArrayList<>();
 
-    config.registerReloadListener(() -> {
-      forEachKnownShop(ChestShopEntry::updateBuildable);
-    });
+    config.registerReloadListener(() -> forEachKnownShop(ChestShopEntry::updateBuildable));
+  }
+
+  public void registerStockChangeListener(Consumer<ChestShopEntry> entry) {
+    this.stockChangeListeners.add(entry);
+  }
+
+  private void callStockChangeListeners(ChestShopEntry entry) {
+    for (var listener : stockChangeListeners)
+      listener.accept(entry);
   }
 
   private boolean checkIfShopIsHidden(ChestShopEntry shopEntry, RegionManager regionManager) {
@@ -206,7 +211,7 @@ public class ChestShopRegistry {
         if (shop.stock < 0)
           shop.stock = 0;
 
-        resultDisplayHandler.onStockChange(shop);
+        callStockChangeListeners(shop);
       }
     }
   }
@@ -221,7 +226,7 @@ public class ChestShopRegistry {
         shop.stock = stock;
         shop.containerSize = containerSize;
 
-        resultDisplayHandler.onStockChange(shop);
+        callStockChangeListeners(shop);
       }
     }
   }

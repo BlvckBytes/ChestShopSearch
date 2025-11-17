@@ -1,6 +1,7 @@
 package at.blvckbytes.chestshop_search.display.result;
 
 import at.blvckbytes.chestshop_search.ChestShopEntry;
+import at.blvckbytes.chestshop_search.ChestShopRegistry;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.DisplayHandler;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
@@ -14,19 +15,20 @@ import org.bukkit.plugin.Plugin;
 public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDisplayData> {
 
   private final SelectionStateStore stateStore;
+  private final ChestShopRegistry shopRegistry;
 
   public ResultDisplayHandler(
     ConfigKeeper<MainSection> config,
     SelectionStateStore stateStore,
+    ChestShopRegistry shopRegistry,
     Plugin plugin
   ) {
     super(config, plugin);
 
     this.stateStore = stateStore;
-  }
+    this.shopRegistry = shopRegistry;
 
-  public void onStockChange(ChestShopEntry shop) {
-    forEachDisplay(display -> display.onShopStockChange(shop));
+    shopRegistry.registerStockChangeListener(shop -> forEachDisplay(display -> display.onShopStockChange(shop)));
   }
 
   @Override
@@ -135,6 +137,7 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
           .build()
       );
 
+      shopRegistry.onDestruction(targetShop.signLocation);
       return;
     }
 
