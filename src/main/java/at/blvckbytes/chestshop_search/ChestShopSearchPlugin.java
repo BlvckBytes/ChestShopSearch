@@ -51,7 +51,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
-      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, chestShopRegistry, this);
+      resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, chestShopRegistry, logger, this);
       Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
 
       var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config, logger);

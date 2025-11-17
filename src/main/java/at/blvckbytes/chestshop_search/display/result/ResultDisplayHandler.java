@@ -6,27 +6,34 @@ import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.DisplayHandler;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Rotatable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.plugin.Plugin;
+
+import java.util.logging.Logger;
 
 public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDisplayData> {
 
   private final SelectionStateStore stateStore;
   private final ChestShopRegistry shopRegistry;
+  private final Logger logger;
 
   public ResultDisplayHandler(
     ConfigKeeper<MainSection> config,
     SelectionStateStore stateStore,
     ChestShopRegistry shopRegistry,
+    Logger logger,
     Plugin plugin
   ) {
     super(config, plugin);
 
     this.stateStore = stateStore;
     this.shopRegistry = shopRegistry;
+    this.logger = logger;
 
     shopRegistry.registerStockChangeListener(shop -> forEachDisplay(display -> display.onShopStockChange(shop)));
   }
@@ -141,12 +148,25 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
       return;
     }
 
-    var signFacing = ((Directional) signBlock.getBlockData()).getFacing();
+    var blockData = signBlock.getBlockData();
+
+    BlockFace signFacing;
+
+    if (blockData instanceof Directional directional)
+      signFacing = directional.getFacing();
+
+    else if (blockData instanceof Rotatable rotatable)
+      signFacing = rotatable.getRotation();
+
+    else {
+      logger.warning("Encountered unaccounted-for block-data-type: " + blockData.getClass());
+      return;
+    }
 
     var signCenter = targetShop.signLocation.clone();
     var footLocation = targetShop.signLocation.clone();
 
-    switch (signFacing) {
+    switch (toCardinalFacing(signFacing)) {
       case NORTH -> {
         footLocation.add(.5, 0, -.1);
         signCenter.add(.5, .5, .9);
@@ -184,5 +204,14 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
         .withStaticVariable("owner", targetShop.owner)
         .build()
     );
+  }
+
+  private static BlockFace toCardinalFacing(BlockFace face) {
+    return switch (face) {
+      case EAST, EAST_NORTH_EAST, EAST_SOUTH_EAST, SOUTH_EAST -> BlockFace.EAST;
+      case SOUTH, SOUTH_SOUTH_EAST, SOUTH_SOUTH_WEST, SOUTH_WEST -> BlockFace.SOUTH;
+      case WEST, WEST_NORTH_WEST, WEST_SOUTH_WEST, NORTH_WEST -> BlockFace.WEST;
+      default -> BlockFace.NORTH;
+    };
   }
 }
