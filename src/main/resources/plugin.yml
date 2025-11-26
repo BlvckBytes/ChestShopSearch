@@ -4,6 +4,7 @@ author: BlvckBytes
 main: at.blvckbytes.chestshop_search.ChestShopSearchPlugin
 api-version: 1.21
 depend: [WorldGuard, ChestShop, ItemPredicateParser]
+softdepend: [floodgate]
 commands:
   shopsearch:
     description: 'Search through all known shops'
