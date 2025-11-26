@@ -8,6 +8,7 @@ import com.Acrobot.ChestShop.Events.ShopCreatedEvent;
 import com.Acrobot.ChestShop.Events.ShopDestroyedEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
+import com.Acrobot.ChestShop.UUIDs.NameManager;
 import com.Acrobot.ChestShop.Utils.uBlock;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -146,18 +147,32 @@ public class ShopDataListener implements Listener {
       return;
     }
 
-    var owner = ChestShopSign.getOwner(signLines);
+    var ownerShortName = ChestShopSign.getOwner(signLines);
 
-    if (owner.isBlank()) {
+    if (ownerShortName.isBlank()) {
       logger.log(Level.WARNING, "Owner was blank for shop at " + signLocation);
       return;
     }
+
+    // The name, stored on the first line of the sign, may in some cases be a shortened
+    // version - ChestShop's NameManager is also used internally to resolve them to their
+    // fully extended counterpart.
+
+    //noinspection deprecation
+    var ownerAccount = NameManager.getAccountFromShortName(ownerShortName);
+
+    if (ownerAccount == null) {
+      logger.log(Level.WARNING, "Owner-account was null for short-name " + ownerShortName + " for shop at " + signLocation);
+      return;
+    }
+
+    var owner = ownerAccount.getName();
 
     var priceLine = ChestShopSign.getPrice(signLines);
     var buyPrice = PriceUtil.getExactBuyPrice(priceLine).doubleValue();
     var sellPrice = PriceUtil.getExactSellPrice(priceLine).doubleValue();
 
-    if (buyPrice <= 0 && sellPrice <= 0) {
+    if (buyPrice < 0 && sellPrice < 0) {
       logger.log(Level.WARNING, "No prices for shop at " + signLocation);
       return;
     }
