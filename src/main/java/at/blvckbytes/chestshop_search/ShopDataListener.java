@@ -95,7 +95,7 @@ public class ShopDataListener implements Listener {
     var shopItem = itemParseEvent.getItem();
 
     if (shopItem == null || shopItem.getType() == Material.AIR) {
-      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + shopSign.getLocation() + " while updating");
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + shopSign.getLocation() + " while updating, sign=[" + joinStrings(shopSign.getLines()) + "]");
       return;
     }
 
@@ -143,14 +143,14 @@ public class ShopDataListener implements Listener {
     var shopItem = itemParseEvent.getItem();
 
     if (shopItem == null || shopItem.getType() == Material.AIR) {
-      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + signLocation + " while registering");
+      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + signLocation + " while registering, sign=[" + joinStrings(signLines) + "]");
       return;
     }
 
     var ownerShortName = ChestShopSign.getOwner(signLines);
 
     if (ownerShortName.isBlank()) {
-      logger.log(Level.WARNING, "Owner was blank for shop at " + signLocation);
+      logger.log(Level.WARNING, "Owner was blank for shop at " + signLocation + ", sign=[" + joinStrings(signLines) + "]");
       return;
     }
 
@@ -162,7 +162,7 @@ public class ShopDataListener implements Listener {
     var ownerAccount = NameManager.getAccountFromShortName(ownerShortName);
 
     if (ownerAccount == null) {
-      logger.log(Level.WARNING, "Owner-account was null for short-name " + ownerShortName + " for shop at " + signLocation);
+      logger.log(Level.WARNING, "Owner-account was null for short-name " + ownerShortName + " for shop at " + signLocation + ", sign=[" + joinStrings(signLines) + "]");
       return;
     }
 
@@ -173,7 +173,7 @@ public class ShopDataListener implements Listener {
     var sellPrice = PriceUtil.getExactSellPrice(priceLine).doubleValue();
 
     if (buyPrice < 0 && sellPrice < 0) {
-      logger.log(Level.WARNING, "No prices for shop at " + signLocation);
+      logger.log(Level.WARNING, "No prices for shop at " + signLocation + ", sign=[" + joinStrings(signLines) + "]");
       return;
     }
 
@@ -198,7 +198,7 @@ public class ShopDataListener implements Listener {
     var quantity = ChestShopSign.getQuantity(signLines);
 
     if (quantity <= 0) {
-      logger.log(Level.WARNING, "No quantity for shop at " + signLocation);
+      logger.log(Level.WARNING, "No quantity for shop at " + signLocation + ", sign=[" + joinStrings(signLines) + "]");
       return;
     }
 
@@ -239,5 +239,16 @@ public class ShopDataListener implements Listener {
     }
 
     return false;
+  }
+
+  private static String joinStrings(String[] values) {
+    var result = new StringBuilder();
+    for (var value : values) {
+      if (!result.isEmpty())
+        result.append(',');
+
+      result.append('"').append(value).append('"');
+    }
+    return result.toString();
   }
 }
