@@ -66,7 +66,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       var predicateHelper = parserPlugin.getPredicateHelper();
 
-      Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20L * 5, 20L * 5);
+      Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20 * 60L, 20 * 60L);
 
       overviewDisplayHandler = new OverviewDisplayHandler(resultDisplayHandler, chestShopRegistry, config, this);
       Bukkit.getServer().getPluginManager().registerEvents(overviewDisplayHandler, this);
@@ -74,20 +74,17 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var commandUpdater = new CommandUpdater(this);
 
       var shopSearchCommand = Objects.requireNonNull(getCommand(ShopSearchCommandSection.INITIAL_NAME));
-      var shopSearchLanguageCommand = Objects.requireNonNull(getCommand(ShopSearchLanguageCommandSection.INITIAL_NAME));
       var shopSearchToggleCommand = Objects.requireNonNull(getCommand(ShopSearchToggleCommandSection.INITIAL_NAME));
       var shopOverviewCommand = Objects.requireNonNull(getCommand(ShopOverviewCommandSection.INITIAL_NAME));
       var shopSearchReloadCommand = Objects.requireNonNull(getCommand(ShopSearchReloadCommandSection.INITIAL_NAME));
 
       shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
-      shopSearchLanguageCommand.setExecutor(new ShopSearchLanguageCommand(keyValueStore, config));
       shopSearchToggleCommand.setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
       shopOverviewCommand.setExecutor(new ShopOverviewCommand(chestShopRegistry, overviewDisplayHandler));
       shopSearchReloadCommand.setExecutor(new ShopSearchReloadCommand(config, logger));
 
       Runnable updateCommands = () -> {
         config.rootSection.commands.shopSearch.apply(shopSearchCommand, commandUpdater);
-        config.rootSection.commands.shopSearchLanguage.apply(shopSearchLanguageCommand, commandUpdater);
         config.rootSection.commands.shopSearchToggle.apply(shopSearchToggleCommand, commandUpdater);
         config.rootSection.commands.shopOverview.apply(shopOverviewCommand, commandUpdater);
         config.rootSection.commands.shopSearchReload.apply(shopSearchReloadCommand, commandUpdater);

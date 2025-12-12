@@ -8,7 +8,6 @@ import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
 public class CommandsSection extends AConfigSection {
 
   public ShopSearchCommandSection shopSearch;
-  public ShopSearchLanguageCommandSection shopSearchLanguage;
   public ShopSearchToggleCommandSection shopSearchToggle;
   public ShopOverviewCommandSection shopOverview;
   public ShopSearchReloadCommandSection shopSearchReload;

@@ -62,7 +62,7 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
     if (!(sender instanceof Player player))
       return false;
 
-    var language = getUserLanguageOrDefault(player);
+    var language = predicateHelper.getSelectedLanguage(player);
 
     ItemPredicate predicate = null;
 
@@ -115,7 +115,7 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
     if (!(sender instanceof Player player))
       return null;
 
-    var language = getUserLanguageOrDefault(player);
+    var language = predicateHelper.getSelectedLanguage(player);
 
     try {
       var tokens = predicateHelper.parseTokens(args, 0);
@@ -133,18 +133,5 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
 
   private void showActionBarMessage(Player player, String message) {
     player.sendActionBar(Component.text(message));
-  }
-
-  private TranslationLanguage getUserLanguageOrDefault(Player player) {
-    var languageName = keyValueStore.read(player.getUniqueId().toString(), NameScopedKeyValueStore.KEY_QUERY_LANGUAGE);
-
-    if (languageName == null)
-      return TranslationLanguage.GERMAN_DE;
-
-    try {
-      return TranslationLanguage.valueOf(languageName);
-    } catch (Throwable e) {
-      return TranslationLanguage.GERMAN_DE;
-    }
   }
 }

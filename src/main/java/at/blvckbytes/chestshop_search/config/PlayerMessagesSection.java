@@ -6,10 +6,6 @@ import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
 
 public class PlayerMessagesSection extends AConfigSection {
 
-  public BukkitEvaluable languageCommandUsage;
-  public BukkitEvaluable languageCommandUnknownLanguage;
-  public BukkitEvaluable languageCommandSelectionMade;
-
   public BukkitEvaluable searchCommandInvalidSearch;
   public BukkitEvaluable searchCommandNoResults;
   public BukkitEvaluable searchCommandResponse;

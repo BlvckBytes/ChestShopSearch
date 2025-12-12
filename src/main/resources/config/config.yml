@@ -20,10 +20,6 @@ commands:
     name: shopoverview
     aliases:
       - sho
-  shopSearchLanguage:
-    name: shopsearchlanguage
-    aliases:
-      - shsl
   shopSearchToggle:
     name: shopsearchtoggle
     aliases:
@@ -39,10 +35,6 @@ regionFilter:
     - world
 
 playerMessages:
-  languageCommandUsage: '@{MESSAGE-LANGUAGE-COMMAND-USAGE(prefix=lut["MESSAGE_PREFIX"])}'
-  languageCommandUnknownLanguage: '@{MESSAGE-LANGUAGE-COMMAND-UNKNOWN-LANGUAGE(prefix=lut["MESSAGE_PREFIX"])}'
-  languageCommandSelectionMade: '@{MESSAGE-LANGUAGE-COMMAND-SELECTION-MADE(prefix=lut["MESSAGE_PREFIX"])}'
-
   searchCommandInvalidSearch: '@{MESSAGE-SEARCH-COMMAND-INVALID-SEARCH(prefix=lut["MESSAGE_PREFIX"])}'
   searchCommandNoResults: '@{MESSAGE-SEARCH-COMMAND-NO-RESULTS(prefix=lut["MESSAGE_PREFIX"])}'
   searchCommandResponse: '@{MESSAGE-SEARCH-COMMAND-RESPONSE(prefix=lut["MESSAGE_PREFIX"])}'

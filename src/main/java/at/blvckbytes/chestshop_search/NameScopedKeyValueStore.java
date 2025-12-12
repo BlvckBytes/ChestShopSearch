@@ -18,8 +18,6 @@ import java.util.logging.Logger;
 
 public class NameScopedKeyValueStore {
 
-  public static final String KEY_QUERY_LANGUAGE = "query-language";
-
   private static final Gson GSON_INSTANCE = new GsonBuilder().setPrettyPrinting().create();
 
   private final File dataFile;
