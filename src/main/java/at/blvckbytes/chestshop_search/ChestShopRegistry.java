@@ -204,7 +204,8 @@ public class ChestShopRegistry {
     if (worldBucket != null) {
       var shop = worldBucket.get(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()));
 
-      if (shop != null) {
+      // Do not try to modify the stock of a shop that is unlimited
+      if (shop != null && shop.stock != -1) {
         shop.stock += amount * (wasBuy ? -1 : 1);
 
         // Just to be safe

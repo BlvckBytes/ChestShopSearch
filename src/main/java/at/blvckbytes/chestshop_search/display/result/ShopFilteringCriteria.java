@@ -14,13 +14,13 @@ public enum ShopFilteringCriteria implements FilteringFunction {
     if (shop.buyPrice < 0)
       return false;
 
-    return (shop.stock > 0) ^ negative;
+    return (shop.stock != 0) ^ negative;
   }),
   HAS_SPACE_LEFT((shop, negative) -> {
     if (shop.sellPrice < 0)
       return false;
 
-    return (shop.calculateSpace() > 0) ^ negative;
+    return (shop.calculateSpace() != 0) ^ negative;
   }),
   ;
 

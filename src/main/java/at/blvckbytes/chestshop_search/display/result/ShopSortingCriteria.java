@@ -7,8 +7,8 @@ import java.util.List;
 
 public enum ShopSortingCriteria implements SortingFunction {
 
-  BUYING_PRICE((a, b, d) -> priceComparator(a.buyPrice, b.buyPrice, d)),
-  SELLING_PRICE((a, b, d) -> priceComparator(a.sellPrice, b.sellPrice, d)),
+  BUYING_PRICE((a, b, d) -> priceComparator(a.getUnitBuyPrice(), b.getUnitBuyPrice(), d)),
+  SELLING_PRICE((a, b, d) -> priceComparator(a.getUnitSellPrice(), b.getUnitSellPrice(), d)),
   OWNER_NAME((a, b, d) -> a.owner.compareTo(b.owner) * (d ? -1 : 1)),
   STOCK_LEFT((a, b, d) -> Integer.compare(a.stock, b.stock) * (d ? -1 : 1)),
   SPACE_LEFT((a, b, d) -> Integer.compare(a.calculateSpace(), b.calculateSpace()) * (d ? -1 : 1)),

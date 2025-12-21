@@ -81,6 +81,20 @@ public class ChestShopEntry {
     this.updateBuildable();
   }
 
+  public double getUnitBuyPrice() {
+    if (quantity <= 0)
+      return buyPrice;
+
+    return buyPrice / quantity;
+  }
+
+  public double getUnitSellPrice() {
+    if (quantity <= 0)
+      return sellPrice;
+
+    return sellPrice / quantity;
+  }
+
   public void updateBuildable() {
     this.representativeBuildable = new ItemBuilder(item, item.getAmount()).patch(config.rootSection.resultDisplay.items.representativePatch);
   }
