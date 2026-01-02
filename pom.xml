@@ -101,6 +101,7 @@
                             <include>me.blvckbytes:SyllablesMatcher</include>
                             <include>me.blvckbytes:GPEEE</include>
                             <include>com.github.cryptomorin:XSeries</include>
+                            <include>org.jetbrains:annotations</include>
                         </includes>
                     </artifactSet>
 
@@ -113,9 +114,18 @@
                         </relocation>
 
                         <relocation>
-                            <pattern>(com/cryptomorin/xseries)</pattern>
-                            <shadedPattern>at/blvckbytes/chestshop_search/$1</shadedPattern>
-                            <rawString>true</rawString>
+                            <pattern>com.cryptomorin.xseries</pattern>
+                            <shadedPattern>at.blvckbytes.chestshop_search.xseries</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>org.jetbrains.annotations</pattern>
+                            <shadedPattern>at.blvckbytes.chestshop_search.jetbrains_annotations</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>org.intellij.lang.annotations</pattern>
+                            <shadedPattern>at.blvckbytes.chestshop_search.intellij_annotations</shadedPattern>
                         </relocation>
                     </relocations>
 
