@@ -78,7 +78,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var shopOverviewCommand = Objects.requireNonNull(getCommand(ShopOverviewCommandSection.INITIAL_NAME));
       var shopSearchReloadCommand = Objects.requireNonNull(getCommand(ShopSearchReloadCommandSection.INITIAL_NAME));
 
-      shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, keyValueStore, resultDisplayHandler, config));
+      shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, resultDisplayHandler, config));
       shopSearchToggleCommand.setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
       shopOverviewCommand.setExecutor(new ShopOverviewCommand(chestShopRegistry, overviewDisplayHandler));
       shopSearchReloadCommand.setExecutor(new ShopSearchReloadCommand(config, logger));

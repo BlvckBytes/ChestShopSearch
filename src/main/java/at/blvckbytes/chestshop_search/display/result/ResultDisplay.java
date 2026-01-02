@@ -35,6 +35,8 @@ public class ResultDisplay extends Display<ResultDisplayData> {
 
   private int currentPage = 1;
 
+  private boolean isFirstRender = true;
+
   public ResultDisplay(
     ConfigKeeper<MainSection> config,
     Plugin plugin,
@@ -236,6 +238,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void show() {
     clearSlotMap();
     super.show();
+    isFirstRender = false;
   }
 
   private void renderSortingItem() {
@@ -283,6 +286,15 @@ public class ResultDisplay extends Display<ResultDisplayData> {
     config.rootSection.resultDisplay.items.nextPage.renderInto(inventory, pageEnvironment);
     renderSortingItem();
     renderFilteringItem();
+
+    if (isFirstRender && !displayData.shops().isEmpty() && filteredSortedShops.isEmpty()) {
+      config.rootSection.playerMessages.searchCommandBlankUi.sendMessage(
+        player,
+        config.rootSection.getBaseEnvironment()
+          .withStaticVariable("result_count", displayData.shops().size())
+          .build()
+      );
+    }
   }
 
   @Override

@@ -9,6 +9,7 @@ public class PlayerMessagesSection extends AConfigSection {
   public BukkitEvaluable searchCommandInvalidSearch;
   public BukkitEvaluable searchCommandNoResults;
   public BukkitEvaluable searchCommandResponse;
+  public BukkitEvaluable searchCommandBlankUi;
 
   public BukkitEvaluable shopTeleportShopGone;
   public BukkitEvaluable shopTeleportTeleported;

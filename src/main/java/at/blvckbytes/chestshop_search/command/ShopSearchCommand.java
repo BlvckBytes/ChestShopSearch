@@ -2,7 +2,6 @@ package at.blvckbytes.chestshop_search.command;
 
 import at.blvckbytes.chestshop_search.ChestShopEntry;
 import at.blvckbytes.chestshop_search.ChestShopRegistry;
-import at.blvckbytes.chestshop_search.NameScopedKeyValueStore;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayData;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
@@ -11,7 +10,6 @@ import me.blvckbytes.item_predicate_parser.PredicateHelper;
 import me.blvckbytes.item_predicate_parser.parse.ItemPredicateParseException;
 import me.blvckbytes.item_predicate_parser.predicate.ItemPredicate;
 import me.blvckbytes.item_predicate_parser.predicate.StringifyState;
-import me.blvckbytes.item_predicate_parser.translation.TranslationLanguage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,20 +26,17 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
 
   private final ChestShopRegistry chestShopRegistry;
   private final PredicateHelper predicateHelper;
-  private final NameScopedKeyValueStore keyValueStore;
   private final ResultDisplayHandler resultDisplayHandler;
   private final ConfigKeeper<MainSection> config;
 
   public ShopSearchCommand(
     ChestShopRegistry chestShopRegistry,
     PredicateHelper predicateHelper,
-    NameScopedKeyValueStore keyValueStore,
     ResultDisplayHandler resultDisplayHandler,
     ConfigKeeper<MainSection> config
   ) {
     this.chestShopRegistry = chestShopRegistry;
     this.predicateHelper = predicateHelper;
-    this.keyValueStore = keyValueStore;
     this.resultDisplayHandler = resultDisplayHandler;
     this.config = config;
   }

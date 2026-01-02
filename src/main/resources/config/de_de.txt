@@ -3,6 +3,7 @@ MESSAGE-PREFIX &7[&6ShopSuche&7]
 MESSAGE-SEARCH-COMMAND-INVALID-SEARCH {prefix} &cUngültige Suche: {error}
 MESSAGE-SEARCH-COMMAND-NO-RESULTS {prefix} &cDie Suche &4{query} &cerzielte &4keine Ergebnisse&c!
 MESSAGE-SEARCH-COMMAND-RESPONSE {prefix} &7Die Suche &a{query} &7erzielte &a{result_count} Ergebnisse&7!
+MESSAGE-SEARCH-COMMAND-BLANK-UI {prefix} &6Achtung! &7Es werden &6keine &7der insgesamt &6{result_count} Einträge &7angezeigt, da alle Ergebnisse von deinen &6aktuellen Filtern &7ausgeschlossen werden!
 
 MESSAGE-SHOP-TELEPORT-SHOP-GONE {prefix} &cDer Shop bei den Koordinaten &4{coordinates} &cin der Welt &4{world} &cexistiert nicht mehr; entferne!
 MESSAGE-SHOP-TELEPORT-TELEPORTED {prefix} &7Du wurdest zum Shop von &a{owner} &7bei &a{coordinates} &7teleportiert!

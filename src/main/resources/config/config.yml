@@ -38,6 +38,7 @@ playerMessages:
   searchCommandInvalidSearch: '@{MESSAGE-SEARCH-COMMAND-INVALID-SEARCH(prefix=lut["MESSAGE_PREFIX"])}'
   searchCommandNoResults: '@{MESSAGE-SEARCH-COMMAND-NO-RESULTS(prefix=lut["MESSAGE_PREFIX"])}'
   searchCommandResponse: '@{MESSAGE-SEARCH-COMMAND-RESPONSE(prefix=lut["MESSAGE_PREFIX"])}'
+  searchCommandBlankUi: '@{MESSAGE-SEARCH-COMMAND-BLANK-UI(prefix=lut["MESSAGE_PREFIX"])}'
 
   shopTeleportShopGone: '@{MESSAGE-SHOP-TELEPORT-SHOP-GONE(prefix=lut["MESSAGE_PREFIX"])}'
   shopTeleportTeleported: '@{MESSAGE-SHOP-TELEPORT-TELEPORTED(prefix=lut["MESSAGE_PREFIX"])}'

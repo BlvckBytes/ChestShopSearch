@@ -1,10 +1,8 @@
 package at.blvckbytes.chestshop_search.command;
 
 import at.blvckbytes.chestshop_search.ChestShopRegistry;
-import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayData;
 import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayHandler;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
