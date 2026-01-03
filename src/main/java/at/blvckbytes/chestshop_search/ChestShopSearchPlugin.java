@@ -7,9 +7,6 @@ import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
 import com.cryptomorin.xseries.XMaterial;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.blvckbytes.bukkitevaluable.CommandUpdater;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.bukkitevaluable.ConfigManager;
@@ -54,7 +51,7 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, chestShopRegistry, logger, this);
       Bukkit.getServer().getPluginManager().registerEvents(resultDisplayHandler, this);
 
-      var dataListener = new ShopDataListener(this, chestShopRegistry, getShopRegions(config), config, logger);
+      var dataListener = new ShopDataListener(this, chestShopRegistry, config, logger);
       getServer().getPluginManager().registerEvents(dataListener, this);
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, chestShopRegistry::save, 20L * 30, 20L * 300);
@@ -126,38 +123,6 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       overviewDisplayHandler.onShutdown();
       overviewDisplayHandler = null;
     }
-  }
-
-  private Set<ProtectedRegion> getShopRegions(ConfigKeeper<MainSection> config) {
-    var result = new HashSet<ProtectedRegion>();
-
-    var shopRegionPattern = config.rootSection.regionFilter.compiledShopRegionPattern;
-    var shopRegionWorlds = config.rootSection.regionFilter.shopRegionWorlds;
-    var regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
-
-    for (var world : Bukkit.getWorlds()) {
-      if (!shopRegionWorlds.contains(world.getName()))
-        continue;
-
-      var regionManager = regionContainer.get(BukkitAdapter.adapt(world));
-
-      if (regionManager == null)
-        continue;
-
-      for (var regionEntry : regionManager.getRegions().entrySet()) {
-        if (!shopRegionPattern.matcher(regionEntry.getKey()).matches())
-          continue;
-
-        result.add(regionEntry.getValue());
-      }
-    }
-
-    if (result.isEmpty())
-      getLogger().log(Level.WARNING, "Encountered zero matching shop-regions");
-    else
-      getLogger().log(Level.INFO, "Encountered " + result.size() + " matching shop-region(s)");
-
-    return result;
   }
 
   private File getFileAndEnsureExistence(String name) throws Exception {

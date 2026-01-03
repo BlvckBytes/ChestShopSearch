@@ -10,7 +10,9 @@ import com.Acrobot.ChestShop.Events.TransactionEvent;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
 import com.Acrobot.ChestShop.UUIDs.NameManager;
 import com.Acrobot.ChestShop.Utils.uBlock;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Bukkit;
@@ -28,6 +30,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,20 +41,26 @@ public class ShopDataListener implements Listener {
   private final ChestShopRegistry chestShopRegistry;
   private final ConfigKeeper<MainSection> config;
   private final Logger logger;
-  public final Set<ProtectedRegion> shopRegions;
+  private final Set<ProtectedRegion> shopRegions;
 
   public ShopDataListener(
     Plugin plugin,
     ChestShopRegistry chestShopRegistry,
-    Set<ProtectedRegion> shopRegions,
     ConfigKeeper<MainSection> config,
     Logger logger
   ) {
     this.plugin = plugin;
     this.chestShopRegistry = chestShopRegistry;
-    this.shopRegions = shopRegions;
+    this.shopRegions = new HashSet<>();
     this.config = config;
     this.logger = logger;
+
+    loadShopRegions();
+    config.registerReloadListener(this::loadShopRegions);
+  }
+
+  public boolean isShopRegion(ProtectedRegion region) {
+    return shopRegions.contains(region);
   }
 
   @EventHandler
@@ -250,5 +259,35 @@ public class ShopDataListener implements Listener {
       result.append('"').append(value).append('"');
     }
     return result.toString();
+  }
+
+  private void loadShopRegions() {
+    this.shopRegions.clear();
+
+    var shopRegionPattern = config.rootSection.regionFilter.compiledShopRegionPattern;
+    var shopRegionWorlds = config.rootSection.regionFilter.shopRegionWorlds;
+    var regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+
+    for (var world : Bukkit.getWorlds()) {
+      if (!shopRegionWorlds.contains(world.getName()))
+        continue;
+
+      var regionManager = regionContainer.get(BukkitAdapter.adapt(world));
+
+      if (regionManager == null)
+        continue;
+
+      for (var regionEntry : regionManager.getRegions().entrySet()) {
+        if (!shopRegionPattern.matcher(regionEntry.getKey()).matches())
+          continue;
+
+        this.shopRegions.add(regionEntry.getValue());
+      }
+    }
+
+    if (this.shopRegions.isEmpty())
+      logger.log(Level.WARNING, "Encountered zero matching shop-regions");
+    else
+      logger.log(Level.INFO, "Encountered " + this.shopRegions.size() + " matching shop-region(s)");
   }
 }

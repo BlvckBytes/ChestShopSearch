@@ -106,7 +106,7 @@ public class ShopSearchToggleCommand implements CommandExecutor {
     var worldGuardPlayer = worldGuardPlugin.wrapPlayer(player);
 
     for (var region : regions) {
-      if (!shopDataListener.shopRegions.contains(region))
+      if (!shopDataListener.isShopRegion(region))
         continue;
 
       if (!region.isOwner(worldGuardPlayer) && !player.hasPermission("chestshopsearch.toggle.bypass"))
