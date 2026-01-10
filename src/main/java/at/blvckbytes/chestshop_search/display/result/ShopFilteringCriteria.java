@@ -1,13 +1,14 @@
 package at.blvckbytes.chestshop_search.display.result;
 
 import at.blvckbytes.chestshop_search.ChestShopEntry;
+import at.blvckbytes.chestshop_search.ChestShopRegistry;
 
 import java.util.Arrays;
 import java.util.List;
 
 public enum ShopFilteringCriteria implements FilteringFunction {
 
-  ADMINSHOP((shop, negative) -> ("Adminshop".equals(shop.owner)) ^ negative),
+  ADMINSHOP((shop, negative) -> (ChestShopRegistry.isAdminShop(shop.owner)) ^ negative),
   CAN_BUY((shop, negative) -> (shop.buyPrice >= 0) ^ negative),
   CAN_SELL((shop, negative) -> (shop.sellPrice >= 0) ^ negative),
   HAS_STOCK_LEFT((shop, negative) -> {

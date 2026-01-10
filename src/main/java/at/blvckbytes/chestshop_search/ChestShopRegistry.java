@@ -179,8 +179,12 @@ public class ChestShopRegistry {
     registerOwnerName(chestShopEntry.owner);
   }
 
+  public static boolean isAdminShop(String name) {
+    return name.replace(" ", "").equalsIgnoreCase("adminshop");
+  }
+
   private void registerOwnerName(String name) {
-    if (name.equalsIgnoreCase("Adminshop"))
+    if (isAdminShop(name))
       return;
 
     shopOwnerByNameLower.computeIfAbsent(name.toLowerCase(), key -> new ShopOwner(name, texturesManager));
@@ -194,8 +198,10 @@ public class ChestShopRegistry {
 
     var shopEntry = worldBucket.remove(fastCoordinateHash(signLocation.getBlockX(), signLocation.getBlockY(), signLocation.getBlockZ()));
 
-    if (shopEntry != null)
-      shopOwnerByNameLower.remove(shopEntry.owner.toLowerCase());
+    if (shopEntry != null) {
+      if (!hasShops(shopEntry.owner))
+        shopOwnerByNameLower.remove(shopEntry.owner.toLowerCase());
+    }
   }
 
   public void onTransaction(Location signLocation, int amount, boolean wasBuy) {
@@ -230,6 +236,18 @@ public class ChestShopRegistry {
         callStockChangeListeners(shop);
       }
     }
+  }
+
+  private boolean hasShops(String ownerName) {
+    // I could also keep a separate set of active owner-names, but for now, this is good enough.
+    for (var anyWorldBucket : shopByFastHashByWorldId.values()) {
+      for (var shop : anyWorldBucket.values()) {
+        if (shop.owner.equalsIgnoreCase(ownerName))
+          return true;
+      }
+    }
+
+    return false;
   }
 
   private @Nullable Long2ObjectMap<ChestShopEntry> getOrCreateWorldBucket(Location signLocation) {
