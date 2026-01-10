@@ -9,33 +9,34 @@ import com.Acrobot.ChestShop.Events.ShopDestroyedEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
 import com.Acrobot.ChestShop.UUIDs.NameManager;
-import com.Acrobot.ChestShop.Utils.uBlock;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import me.blvckbytes.bukkitevaluable.ConfigKeeper;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.block.Container;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.Sign;
+import org.bukkit.*;
+import org.bukkit.block.*;
+import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.DoubleChestInventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ShopDataListener implements Listener {
+
+  private static final BlockFace[] CONTAINER_SIGN_FACES = new BlockFace[] {
+    BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
+  };
 
   private final Plugin plugin;
   private final ChestShopRegistry chestShopRegistry;
@@ -66,51 +67,84 @@ public class ShopDataListener implements Listener {
   @EventHandler
   public void onShopTransaction(TransactionEvent event) {
     int totalAmountTransferred = 0;
+    ItemStack shopItem = null;
 
-    for (var item : event.getStock())
+    for (var item : event.getStock()) {
+      if (item == null || item.getType().isAir() || item.getAmount() < 0)
+        continue;
+
       totalAmountTransferred += item.getAmount();
 
-    chestShopRegistry.onTransaction(event.getSign().getLocation(), totalAmountTransferred, event.getTransactionType() == TransactionEvent.TransactionType.BUY);
-  }
+      if (shopItem == null) {
+        shopItem = item;
+        continue;
+      }
 
-  private @Nullable Sign getInventoryShopSign(@Nullable InventoryHolder inventoryHolder) {
-    if (inventoryHolder == null)
-      return null;
-
-    if (inventoryHolder instanceof Container container)
-      return uBlock.getConnectedSign(container);
-
-    if (inventoryHolder instanceof DoubleChest doubleChest) {
-      var leftSign = getInventoryShopSign(doubleChest.getLeftSide());
-
-      if (leftSign != null)
-        return leftSign;
-
-      return getInventoryShopSign(doubleChest.getRightSide());
+      if (!shopItem.isSimilar(item)) {
+        logger.log(Level.SEVERE, "Expected all items within a transaction to be similar to each-other; ignoring this transaction!");
+        return;
+      }
     }
 
-    return null;
+    if (shopItem == null)
+      return;
+
+    var eventSign = event.getSign();
+    var shopSigns = new HashMap<Location, ItemStack>();
+
+    shopSigns.put(eventSign.getLocation(), shopItem);
+
+    var signBlock = eventSign.getBlock();
+    var signFacing = ((Directional) signBlock.getBlockData()).getFacing();
+    var possibleContainer = signBlock.getRelative(signFacing.getOppositeFace());
+
+    addRemainingSignsOfShopContainer(getAllBlocksOfContainer(possibleContainer), shopSigns);
+
+    var wasBuy = event.getTransactionType() == TransactionEvent.TransactionType.BUY;
+
+    for (var signEntry : shopSigns.entrySet()) {
+      // There may be multiple different items sold/bought from/into the very same physical
+      // container, so only relay the transaction to the shops that are affected by it.
+      if (!shopItem.isSimilar(signEntry.getValue()))
+        continue;
+
+      chestShopRegistry.onTransaction(signEntry.getKey(), totalAmountTransferred, wasBuy);
+    }
   }
 
   @EventHandler
   public void onInventoryClose(InventoryCloseEvent event) {
-    var shopSign = getInventoryShopSign(event.getInventory().getHolder());
+    var inventory = event.getInventory();
+    List<Block> containerBlocks;
 
-    if (shopSign == null)
-      return;
+    if (inventory instanceof DoubleChestInventory doubleChestInventory) {
+      containerBlocks = new ArrayList<>();
 
-    var itemParseEvent = new ItemParseEvent(ChestShopSign.getItem(shopSign));
-    Bukkit.getPluginManager().callEvent(itemParseEvent);
-    var shopItem = itemParseEvent.getItem();
+      if (doubleChestInventory.getLeftSide().getHolder() instanceof Container container)
+        containerBlocks.add(container.getBlock());
 
-    if (shopItem == null || shopItem.getType() == Material.AIR) {
-      logger.log(Level.WARNING, "Item-response was null/AIR for shop at " + shopSign.getLocation() + " while updating, sign=[" + joinStrings(shopSign.getLines()) + "]");
-      return;
+      if (doubleChestInventory.getRightSide().getHolder() instanceof Container container)
+        containerBlocks.add(container.getBlock());
     }
 
-    var stock = InventoryUtil.getAmount(shopItem, event.getInventory());
+    else if (inventory.getHolder() instanceof BlockInventoryHolder blockInventoryHolder)
+      containerBlocks = getAllBlocksOfContainer(blockInventoryHolder.getBlock());
 
-    chestShopRegistry.onInventoryClose(shopSign.getLocation(), stock, event.getInventory().getSize());
+    else
+      return;
+
+    var shopSigns = new HashMap<Location, ItemStack>();
+
+    addRemainingSignsOfShopContainer(containerBlocks, shopSigns);
+
+    var inventorySize = inventory.getSize();
+
+    for (var signEntry : shopSigns.entrySet()) {
+      // Relay an update to all attached shops, no matter their type, seeing how we specifically count
+      // items for each individual sign; the user may have restocked multiple different items at once.
+      var stock = InventoryUtil.getAmount(signEntry.getValue(), inventory);
+      chestShopRegistry.onInventoryClose(signEntry.getKey(), stock, inventorySize);
+    }
   }
 
   @EventHandler
@@ -289,5 +323,84 @@ public class ShopDataListener implements Listener {
       logger.log(Level.WARNING, "Encountered zero matching shop-regions");
     else
       logger.log(Level.INFO, "Encountered " + this.shopRegions.size() + " matching shop-region(s)");
+  }
+
+  private void addRemainingSignsOfShopContainer(List<Block> containerBlocks, Map<Location, ItemStack> output) {
+    for (var currentBlock : containerBlocks) {
+      for (var currentFace : CONTAINER_SIGN_FACES) {
+        var possibleSignBlock = currentBlock.getRelative(currentFace);
+        var possibleSignLocation = possibleSignBlock.getLocation();
+
+        if (output.containsKey(possibleSignLocation))
+          continue;
+
+        if (!Tag.WALL_SIGNS.isTagged(possibleSignBlock.getType()))
+          continue;
+
+        var signFacing = ((Directional) possibleSignBlock.getBlockData()).getFacing();
+
+        if (signFacing != currentFace)
+          continue;
+
+        var sign = ((Sign) possibleSignBlock.getState());
+
+        var itemLineContents = ChestShopSign.getItem(sign);
+
+        if (itemLineContents.isBlank())
+          continue;
+
+        var itemParseEvent = new ItemParseEvent(itemLineContents);
+
+        Bukkit.getPluginManager().callEvent(itemParseEvent);
+
+        var shopItem = itemParseEvent.getItem();
+
+        if (shopItem == null || shopItem.getType() == Material.AIR)
+          continue;
+
+        output.put(possibleSignLocation, shopItem);
+      }
+    }
+  }
+
+  private List<Block> getAllBlocksOfContainer(Block containerBlock) {
+    var result = new ArrayList<Block>();
+
+    if (!(containerBlock.getState() instanceof Container))
+      return Collections.emptyList();
+
+    result.add(containerBlock);
+
+    if (!(containerBlock.getBlockData() instanceof Chest chest))
+      return result;
+
+    var type = chest.getType();
+
+    if (type == Chest.Type.SINGLE)
+      return result;
+
+    int dx = 0, dz = 0;
+
+    // Left and right are relative to the chest itself, i.e. opposite to what
+    // a player placing the appropriate block would see.
+
+    switch (chest.getFacing()) {
+      case NORTH: // -z
+        dx = (type == Chest.Type.LEFT) ? 1 : -1;
+        break;
+      case SOUTH: // +z
+        dx = (type == Chest.Type.LEFT) ? -1 : 1;
+        break;
+      case EAST: // +x
+        dz = (type == Chest.Type.LEFT) ? 1 : -1;
+        break;
+      case WEST: // -x
+        dz = (type == Chest.Type.LEFT) ? -1 : 1;
+        break;
+    }
+
+    result.add(containerBlock.getRelative(dx, 0, dz));
+
+    return result;
   }
 }
