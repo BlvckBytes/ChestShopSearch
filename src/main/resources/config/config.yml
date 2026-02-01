@@ -28,7 +28,7 @@ commands:
       - shsrl
 
 regionFilter:
-  shopRegionPattern: '^(shop[0-9]+)|adminshop'
+  shopRegionPattern: '^(shop[0-9]+)|adminshop|zoospawn$'
   shopRegionWorlds:
     - world
 
