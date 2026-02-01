@@ -9,8 +9,7 @@ import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import me.blvckbytes.item_predicate_parser.PredicateHelper;
 import me.blvckbytes.item_predicate_parser.parse.ItemPredicateParseException;
 import me.blvckbytes.item_predicate_parser.predicate.ItemPredicate;
-import me.blvckbytes.item_predicate_parser.predicate.StringifyState;
-import net.kyori.adventure.text.Component;
+import me.blvckbytes.item_predicate_parser.predicate.stringify.PlainStringifier;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -78,7 +77,7 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
       }
     }
 
-    var queryString = predicate == null ? "/" : new StringifyState(true).appendPredicate(predicate).toString();
+    var queryString = predicate == null ? "/" : PlainStringifier.stringify(predicate, true);
     var results = queryShops(predicate);
 
     if (results.isEmpty()) {
@@ -117,16 +116,12 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
       var completions = predicateHelper.createCompletion(language, tokens);
 
       if (completions.expandedPreviewOrError() != null)
-        showActionBarMessage(player, completions.expandedPreviewOrError());
+        player.sendActionBar(completions.expandedPreviewOrError());
 
       return completions.suggestions();
     } catch (ItemPredicateParseException e) {
-      showActionBarMessage(player, predicateHelper.createExceptionMessage(e));
+      player.sendActionBar(predicateHelper.createExceptionMessage(e));
       return null;
     }
-  }
-
-  private void showActionBarMessage(Player player, String message) {
-    player.sendActionBar(Component.text(message));
   }
 }
