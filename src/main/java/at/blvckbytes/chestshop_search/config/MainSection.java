@@ -2,19 +2,20 @@ package at.blvckbytes.chestshop_search.config;
 
 import at.blvckbytes.chestshop_search.config.command.CommandsSection;
 import at.blvckbytes.chestshop_search.config.result_display.ResultDisplaySection;
-import me.blvckbytes.bbconfigmapper.sections.AConfigSection;
-import me.blvckbytes.bbconfigmapper.sections.CSAlways;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.mapper.section.CSAlways;
+import at.blvckbytes.cm_mapper.mapper.section.ConfigSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
 @CSAlways
-public class MainSection extends AConfigSection {
+public class MainSection extends ConfigSection {
 
   public CommandsSection commands;
   public PlayerMessagesSection playerMessages;
   public RegionFilterSection regionFilter;
   public ResultDisplaySection resultDisplay;
 
-  public MainSection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(baseEnvironment);
+  public MainSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(baseEnvironment, interpreterLogger);
   }
 }

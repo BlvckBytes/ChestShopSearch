@@ -1,6 +1,5 @@
 package at.blvckbytes.chestshop_search;
 
-import at.blvckbytes.chestshop_search.config.MainSection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -10,7 +9,6 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Location;
 
 import javax.annotation.Nullable;
@@ -30,7 +28,6 @@ public class ChestShopRegistry {
   private final NameScopedKeyValueStore keyValueStore;
   private final RegionContainer regionContainer;
   private final File persistenceFile;
-  private final ConfigKeeper<MainSection> config;
   private final Logger logger;
 
   private final Map<WorldAndRegionManager, Long2ObjectMap<ChestShopEntry>> shopByFastHashByWorldId;
@@ -41,21 +38,17 @@ public class ChestShopRegistry {
     SkullTexturesManager texturesManager,
     NameScopedKeyValueStore keyValueStore,
     File persistenceFile,
-    ConfigKeeper<MainSection> config,
     Logger logger
   ) {
     this.texturesManager = texturesManager;
     this.keyValueStore = keyValueStore;
     this.regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
     this.persistenceFile = persistenceFile;
-    this.config = config;
     this.logger = logger;
 
     this.shopByFastHashByWorldId = new HashMap<>();
     this.shopOwnerByNameLower = new HashMap<>();
     this.stockChangeListeners = new ArrayList<>();
-
-    config.registerReloadListener(() -> forEachKnownShop(ChestShopEntry::updateBuildable));
   }
 
   public void registerStockChangeListener(Consumer<ChestShopEntry> entry) {
@@ -136,7 +129,7 @@ public class ChestShopRegistry {
       var loadedCounter = 0;
 
       for (var jsonShop : jsonShops) {
-        var shopEntry = ChestShopEntry.fromJson(jsonShop, config, logger);
+        var shopEntry = ChestShopEntry.fromJson(jsonShop, logger);
 
         if (shopEntry == null)
           continue;

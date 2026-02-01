@@ -1,22 +1,23 @@
 package at.blvckbytes.chestshop_search.config;
 
-import me.blvckbytes.bbconfigmapper.MappingError;
-import me.blvckbytes.bbconfigmapper.sections.AConfigSection;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.mapper.MappingError;
+import at.blvckbytes.cm_mapper.mapper.section.ConfigSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RegionFilterSection extends AConfigSection {
+public class RegionFilterSection extends ConfigSection {
 
   public String shopRegionPattern;
   public Pattern compiledShopRegionPattern;
   public List<String> shopRegionWorlds;
 
-  public RegionFilterSection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(baseEnvironment);
+  public RegionFilterSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(baseEnvironment, interpreterLogger);
 
     this.shopRegionWorlds = new ArrayList<>();
   }

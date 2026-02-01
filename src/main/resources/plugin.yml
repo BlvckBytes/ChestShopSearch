@@ -1,5 +1,5 @@
 name: ChestShopSearch
-version: 0.1
+version: ${project.version}
 author: BlvckBytes
 main: at.blvckbytes.chestshop_search.ChestShopSearchPlugin
 api-version: 1.21

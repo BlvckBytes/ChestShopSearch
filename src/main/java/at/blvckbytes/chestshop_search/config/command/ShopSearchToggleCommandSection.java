@@ -1,13 +1,14 @@
 package at.blvckbytes.chestshop_search.config.command;
 
-import me.blvckbytes.bukkitevaluable.section.ACommandSection;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.section.command.CommandSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
-public class ShopSearchToggleCommandSection extends ACommandSection {
+public class ShopSearchToggleCommandSection extends CommandSection {
 
   public static final String INITIAL_NAME = "shopsearchtoggle";
 
-  public ShopSearchToggleCommandSection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(INITIAL_NAME, baseEnvironment);
+  public ShopSearchToggleCommandSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(INITIAL_NAME, baseEnvironment, interpreterLogger);
   }
 }

@@ -1,11 +1,12 @@
 package at.blvckbytes.chestshop_search.config.result_display;
 
-import at.blvckbytes.chestshop_search.config.display_common.PaginatedGuiSection;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.section.gui.PaginatedGuiSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
 public class ResultDisplaySection extends PaginatedGuiSection<ResultDisplayItemsSection> {
 
-  public ResultDisplaySection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(ResultDisplayItemsSection.class, baseEnvironment);
+  public ResultDisplaySection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(ResultDisplayItemsSection.class, baseEnvironment, interpreterLogger);
   }
 }

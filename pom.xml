@@ -64,9 +64,9 @@
             <version>24.1.0</version>
         </dependency>
         <dependency>
-            <groupId>me.blvckbytes</groupId>
-            <artifactId>BukkitEvaluable</artifactId>
-            <version>0.1</version>
+            <groupId>at.blvckbytes</groupId>
+            <artifactId>CMMapper</artifactId>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.geysermc.floodgate</groupId>
@@ -77,6 +77,16 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                    <include>config/**</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -95,22 +105,23 @@
 
                     <artifactSet>
                         <includes>
-                            <!-- Include all libs for shading -->
-                            <include>me.blvckbytes:BBConfigMapper</include>
-                            <include>me.blvckbytes:BukkitEvaluable</include>
+                            <include>at.blvckbytes:CMMapper</include>
+                            <include>at.blvckbytes:ComponentMarkup</include>
                             <include>me.blvckbytes:SyllablesMatcher</include>
-                            <include>me.blvckbytes:GPEEE</include>
                             <include>com.github.cryptomorin:XSeries</include>
                             <include>org.jetbrains:annotations</include>
                         </includes>
                     </artifactSet>
 
                     <relocations>
-                        <!-- Relocate all libs into the root package -->
                         <relocation>
-                            <pattern>me/blvckbytes/(bbconfigmapper|bukkitevaluable|gpeee|syllables_matcher)/(.*)</pattern>
-                            <shadedPattern>at/blvckbytes/chestshop_search/$1/$2</shadedPattern>
-                            <rawString>true</rawString>
+                            <pattern>at.blvckbytes.cm_mapper</pattern>
+                            <shadedPattern>at.blvckbytes.chestshop_search.cm_mapper</shadedPattern>
+                        </relocation>
+
+                        <relocation>
+                            <pattern>at.blvckbytes.component_markup</pattern>
+                            <shadedPattern>at.blvckbytes.chestshop_search.component_markup</shadedPattern>
                         </relocation>
 
                         <relocation>

@@ -5,7 +5,8 @@ import at.blvckbytes.chestshop_search.ChestShopRegistry;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayData;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import me.blvckbytes.item_predicate_parser.PredicateHelper;
 import me.blvckbytes.item_predicate_parser.parse.ItemPredicateParseException;
 import me.blvckbytes.item_predicate_parser.predicate.ItemPredicate;
@@ -68,9 +69,8 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
       } catch (ItemPredicateParseException e) {
         config.rootSection.playerMessages.searchCommandInvalidSearch.sendMessage(
           player,
-          config.rootSection.getBaseEnvironment()
-            .withStaticVariable("error", predicateHelper.createExceptionMessage(e))
-            .build()
+          new InterpretationEnvironment()
+            .withVariable("error", predicateHelper.createExceptionMessage(e))
         );
 
         return true;
@@ -83,9 +83,8 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
     if (results.isEmpty()) {
       config.rootSection.playerMessages.searchCommandNoResults.sendMessage(
         player,
-        config.rootSection.getBaseEnvironment()
-          .withStaticVariable("query", queryString)
-          .build()
+        new InterpretationEnvironment()
+          .withVariable("query", queryString)
       );
 
       return true;
@@ -93,10 +92,9 @@ public class ShopSearchCommand implements CommandExecutor, TabCompleter {
 
     config.rootSection.playerMessages.searchCommandResponse.sendMessage(
       player,
-      config.rootSection.getBaseEnvironment()
-        .withStaticVariable("query", queryString)
-        .withStaticVariable("result_count", results.size())
-        .build()
+      new InterpretationEnvironment()
+        .withVariable("query", queryString)
+        .withVariable("result_count", results.size())
     );
 
     resultDisplayHandler.show(player, new ResultDisplayData(null, results));

@@ -4,9 +4,8 @@ import at.blvckbytes.chestshop_search.ShopOwner;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.Display;
 import at.blvckbytes.chestshop_search.display.result.AsyncTaskQueue;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
-import me.blvckbytes.gpeee.interpreter.IEvaluationEnvironment;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.Plugin;
@@ -20,7 +19,7 @@ public class OverviewDisplay extends Display<OverviewDisplayData> {
   private final ShopOwner[] slotMap;
   private int numberOfPages;
 
-  private IEvaluationEnvironment pageEnvironment;
+  private InterpretationEnvironment pageEnvironment;
 
   private int currentPage = 1;
 
@@ -47,17 +46,13 @@ public class OverviewDisplay extends Display<OverviewDisplayData> {
     var numberOfDisplaySlots = config.rootSection.resultDisplay.getPaginationSlots().size();
     this.numberOfPages = Math.max(1, (int) Math.ceil(displayData.owners().size() / (double) numberOfDisplaySlots));
 
-    this.pageEnvironment = new EvaluationEnvironmentBuilder()
-      // Since I reuse the result-display - select the default title
-      .withStaticVariable("owner", null)
-      .withLiveVariable("current_page", () -> this.currentPage)
-      .withLiveVariable("number_pages", () -> this.numberOfPages)
-      .build(config.rootSection.resultDisplay.inventoryEnvironment);
+    this.pageEnvironment = config.rootSection.resultDisplay.inventoryEnvironment.copy()
+      .withVariable("current_page", this.currentPage)
+      .withVariable("number_of_pages", this.numberOfPages);
   }
 
   @Override
   public void onConfigReload() {
-    setupEnvironments();
     show();
   }
 
@@ -124,6 +119,7 @@ public class OverviewDisplay extends Display<OverviewDisplayData> {
 
   @Override
   public void show() {
+    setupEnvironments();
     clearSlotMap();
     super.show();
   }
@@ -144,7 +140,7 @@ public class OverviewDisplay extends Display<OverviewDisplayData> {
       }
 
       var entry = displayData.owners().get(currentSlot);
-      var item = config.rootSection.resultDisplay.items.shopOwner.buildable.build(entry.environment);
+      var item = config.rootSection.resultDisplay.items.shopOwner.build(entry.getEnvironment());
 
       inventory.setItem(slot, item);
 

@@ -6,7 +6,7 @@ import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.DisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayData;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.plugin.Plugin;

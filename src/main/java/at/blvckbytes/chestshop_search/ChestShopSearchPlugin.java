@@ -6,10 +6,10 @@ import at.blvckbytes.chestshop_search.config.command.*;
 import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
+import at.blvckbytes.cm_mapper.ConfigHandler;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.cm_mapper.section.command.CommandUpdater;
 import com.cryptomorin.xseries.XMaterial;
-import me.blvckbytes.bukkitevaluable.CommandUpdater;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
-import me.blvckbytes.bukkitevaluable.ConfigManager;
 import me.blvckbytes.item_predicate_parser.ItemPredicateParserPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -38,14 +38,14 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       keyValueStore = new NameScopedKeyValueStore(getFileAndEnsureExistence("user-preferences.json"), logger);
 
-      var configManager = new ConfigManager(this, "config");
-      var config = new ConfigKeeper<>(configManager, "config.yml", MainSection.class);
+      var configHandler = new ConfigHandler(this, "config");
+      var config = new ConfigKeeper<>(configHandler, "config.yml", MainSection.class);
 
       var texturesManager = new SkullTexturesManager(this, logger);
 
       selectionStateStore = new SelectionStateStore(this, logger);
 
-      chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, getFileAndEnsureExistence("known-shops.json"), config, logger);
+      chestShopRegistry = new ChestShopRegistry(texturesManager, keyValueStore, getFileAndEnsureExistence("known-shops.json"), logger);
       Bukkit.getScheduler().runTaskAsynchronously(this, chestShopRegistry::load);
 
       resultDisplayHandler = new ResultDisplayHandler(config, selectionStateStore, chestShopRegistry, logger, this);

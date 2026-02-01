@@ -1,7 +1,7 @@
 package at.blvckbytes.chestshop_search.command;
 
 import at.blvckbytes.chestshop_search.config.MainSection;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -31,10 +31,10 @@ public class ShopSearchReloadCommand implements CommandExecutor {
     try {
       this.config.reload();
 
-      config.rootSection.playerMessages.pluginReloadedSuccess.sendMessage(sender, config.rootSection.builtBaseEnvironment);
+      config.rootSection.playerMessages.pluginReloadedSuccess.sendMessage(sender);
     } catch (Exception e) {
       logger.log(Level.SEVERE, "An error occurred while trying to reload the config", e);
-      config.rootSection.playerMessages.pluginReloadedError.sendMessage(sender, config.rootSection.builtBaseEnvironment);
+      config.rootSection.playerMessages.pluginReloadedError.sendMessage(sender);
     }
 
     return false;

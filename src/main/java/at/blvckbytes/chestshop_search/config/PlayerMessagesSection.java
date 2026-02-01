@@ -1,27 +1,25 @@
 package at.blvckbytes.chestshop_search.config;
 
-import me.blvckbytes.bbconfigmapper.sections.AConfigSection;
-import me.blvckbytes.bukkitevaluable.BukkitEvaluable;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.cm.ComponentMarkup;
+import at.blvckbytes.cm_mapper.mapper.section.ConfigSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
-public class PlayerMessagesSection extends AConfigSection {
+public class PlayerMessagesSection extends ConfigSection {
 
-  public BukkitEvaluable searchCommandInvalidSearch;
-  public BukkitEvaluable searchCommandNoResults;
-  public BukkitEvaluable searchCommandResponse;
-  public BukkitEvaluable searchCommandBlankUi;
+  public ComponentMarkup searchCommandInvalidSearch;
+  public ComponentMarkup searchCommandNoResults;
+  public ComponentMarkup searchCommandResponse;
+  public ComponentMarkup searchCommandBlankUi;
+  public ComponentMarkup shopTeleportShopGone;
+  public ComponentMarkup shopTeleportTeleported;
+  public ComponentMarkup shopSearchToggleNotInARegion;
+  public ComponentMarkup shopSearchToggleNowVisible;
+  public ComponentMarkup shopSearchToggleNowInvisible;
+  public ComponentMarkup pluginReloadedSuccess;
+  public ComponentMarkup pluginReloadedError;
 
-  public BukkitEvaluable shopTeleportShopGone;
-  public BukkitEvaluable shopTeleportTeleported;
-
-  public BukkitEvaluable shopSearchToggleNotInARegion;
-  public BukkitEvaluable shopSearchToggleNowVisible;
-  public BukkitEvaluable shopSearchToggleNowInvisible;
-
-  public BukkitEvaluable pluginReloadedSuccess;
-  public BukkitEvaluable pluginReloadedError;
-
-  public PlayerMessagesSection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(baseEnvironment);
+  public PlayerMessagesSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(baseEnvironment, interpreterLogger);
   }
 }

@@ -3,9 +3,8 @@ package at.blvckbytes.chestshop_search.display.result;
 import at.blvckbytes.chestshop_search.ChestShopEntry;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.Display;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
-import me.blvckbytes.gpeee.interpreter.IEvaluationEnvironment;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -29,9 +28,9 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   private int numberOfPages;
   public final SelectionState selectionState;
 
-  private IEvaluationEnvironment pageEnvironment;
-  private IEvaluationEnvironment sortingEnvironment;
-  private IEvaluationEnvironment filteringEnvironment;
+  private InterpretationEnvironment pageEnvironment;
+  private InterpretationEnvironment sortingEnvironment;
+  private InterpretationEnvironment filteringEnvironment;
 
   private int currentPage = 1;
 
@@ -51,8 +50,6 @@ public class ResultDisplay extends Display<ResultDisplayData> {
     this.currentlyRenderedSignLocations = new HashSet<>();
     this.selectionState = selectionState;
 
-    setupEnvironments();
-
     // Within async context already, see corresponding command
     applyFiltering();
     applySorting();
@@ -60,24 +57,22 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   }
 
   private void setupEnvironments() {
-    this.pageEnvironment = new EvaluationEnvironmentBuilder()
-      .withLiveVariable("current_page", () -> this.currentPage)
-      .withLiveVariable("number_pages", () -> this.numberOfPages)
-      .withStaticVariable("owner", displayData.overviewDisplayInfo() == null ? null : displayData.overviewDisplayInfo().owner().name)
-      .build(config.rootSection.resultDisplay.inventoryEnvironment);
+    pageEnvironment = config.rootSection.resultDisplay.inventoryEnvironment.copy()
+      .withVariable("current_page", this.currentPage)
+      .withVariable("number_of_pages", this.numberOfPages);
 
-    this.sortingEnvironment = this.selectionState
-      .makeSortingEnvironment(config.rootSection)
-      .build(pageEnvironment);
+    if (displayData.overviewDisplayInfo() != null)
+      pageEnvironment.withVariable("owner", displayData.overviewDisplayInfo().owner().name);
 
-    this.filteringEnvironment = this.selectionState
-      .makeFilteringEnvironment(config.rootSection)
-      .build(pageEnvironment);
+    sortingEnvironment = pageEnvironment.copy();
+    selectionState.extendSortingEnvironment(sortingEnvironment);
+
+    filteringEnvironment = pageEnvironment.copy();
+    selectionState.extendFilteringEnvironment(filteringEnvironment);
   }
 
   @Override
   public void onConfigReload() {
-    setupEnvironments();
     applyFiltering();
     applySorting();
     show();
@@ -152,6 +147,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void nextSortingSelection() {
     asyncQueue.enqueue(() -> {
       this.selectionState.nextSortingSelection();
+      setupEnvironments();
       renderSortingItem();
     });
   }
@@ -159,6 +155,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void nextSortingOrder() {
     asyncQueue.enqueue(() -> {
       this.selectionState.nextSortingOrder();
+      setupEnvironments();
       applySorting();
       renderItems();
     });
@@ -167,6 +164,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void moveSortingSelectionDown() {
     asyncQueue.enqueue(() -> {
       this.selectionState.moveSortingSelectionDown();
+      setupEnvironments();
       applySorting();
       renderItems();
     });
@@ -175,6 +173,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void resetSortingState() {
     asyncQueue.enqueue(() -> {
       this.selectionState.resetSorting();
+      setupEnvironments();
       applySorting();
       renderItems();
     });
@@ -183,6 +182,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   public void nextFilteringCriterion() {
     asyncQueue.enqueue(() -> {
       this.selectionState.nextFilteringCriterion();
+      setupEnvironments();
       renderFilteringItem();
     });
   }
@@ -204,6 +204,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
   private void afterFilterChange() {
     int pageCountDelta = applyFiltering();
     applySorting();
+    setupEnvironments();
 
     // Need to update the UI-title
     if (pageCountDelta != 0)
@@ -236,6 +237,7 @@ public class ResultDisplay extends Display<ResultDisplayData> {
 
   @Override
   public void show() {
+    setupEnvironments();
     clearSlotMap();
     super.show();
     isFirstRender = false;
@@ -267,10 +269,11 @@ public class ResultDisplay extends Display<ResultDisplayData> {
       }
 
       var cachedShop = filteredSortedShops.get(currentSlot);
+      var representativeItem = cachedShop.item.clone();
 
-      inventory.setItem(slot, cachedShop.getRepresentativeBuildable().build(
-        cachedShop.shopEnvironment
-      ));
+      config.rootSection.resultDisplay.items.representativePatch.patch(representativeItem, cachedShop.getEnvironment());
+
+      inventory.setItem(slot, representativeItem);
 
       slotMap[slot] = cachedShop;
       currentlyRenderedSignLocations.add(cachedShop.signLocation);
@@ -290,9 +293,8 @@ public class ResultDisplay extends Display<ResultDisplayData> {
     if (isFirstRender && !displayData.shops().isEmpty() && filteredSortedShops.isEmpty()) {
       config.rootSection.playerMessages.searchCommandBlankUi.sendMessage(
         player,
-        config.rootSection.getBaseEnvironment()
-          .withStaticVariable("result_count", displayData.shops().size())
-          .build()
+        new InterpretationEnvironment()
+          .withVariable("result_count", displayData.shops().size())
       );
     }
   }

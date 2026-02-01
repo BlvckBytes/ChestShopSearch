@@ -4,8 +4,9 @@ import at.blvckbytes.chestshop_search.ChestShopEntry;
 import at.blvckbytes.chestshop_search.ChestShopRegistry;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.chestshop_search.display.DisplayHandler;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
@@ -137,11 +138,10 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
     if (!(signBlock.getState() instanceof Sign sign) || !ChestShopSign.isValid(sign)) {
       config.rootSection.playerMessages.shopTeleportShopGone.sendMessage(
         player,
-        config.rootSection.getBaseEnvironment()
-          .withStaticVariable( "coordinates", coordinates)
-          .withStaticVariable("world", worldName)
-          .withStaticVariable("owner", targetShop.owner)
-          .build()
+        new InterpretationEnvironment()
+          .withVariable( "coordinates", coordinates)
+          .withVariable("world", worldName)
+          .withVariable("owner", targetShop.owner)
       );
 
       shopRegistry.onDestruction(targetShop.signLocation);
@@ -198,11 +198,10 @@ public class ResultDisplayHandler extends DisplayHandler<ResultDisplay, ResultDi
 
     config.rootSection.playerMessages.shopTeleportTeleported.sendMessage(
       player,
-      config.rootSection.getBaseEnvironment()
-        .withStaticVariable("coordinates", coordinates)
-        .withStaticVariable("world", worldName)
-        .withStaticVariable("owner", targetShop.owner)
-        .build()
+      new InterpretationEnvironment()
+        .withVariable("coordinates", coordinates)
+        .withVariable("world", worldName)
+        .withVariable("owner", targetShop.owner)
     );
   }
 

@@ -1,7 +1,7 @@
 package at.blvckbytes.chestshop_search.display;
 
 import at.blvckbytes.chestshop_search.config.MainSection;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;

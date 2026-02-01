@@ -3,13 +3,14 @@ package at.blvckbytes.chestshop_search.command;
 import at.blvckbytes.chestshop_search.NameScopedKeyValueStore;
 import at.blvckbytes.chestshop_search.ShopDataListener;
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.cm_mapper.cm.ComponentMarkup;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import me.blvckbytes.bukkitevaluable.BukkitEvaluable;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -65,7 +66,7 @@ public class ShopSearchToggleCommand implements CommandExecutor {
     List<String> ownerNames;
 
     if (region == null || (ownerNames = getRegionOwnerNames(region)).isEmpty()) {
-      config.rootSection.playerMessages.shopSearchToggleNotInARegion.sendMessage(player, config.rootSection.builtBaseEnvironment);
+      config.rootSection.playerMessages.shopSearchToggleNotInARegion.sendMessage(player);
       return true;
     }
 
@@ -78,7 +79,7 @@ public class ShopSearchToggleCommand implements CommandExecutor {
     for (var ownerName : ownerNames)
       keyValueStore.write(ownerName, key, String.valueOf(nextValue));
 
-    BukkitEvaluable message;
+    ComponentMarkup message;
 
     if (nextValue)
       message = config.rootSection.playerMessages.shopSearchToggleNowVisible;
@@ -87,10 +88,9 @@ public class ShopSearchToggleCommand implements CommandExecutor {
 
     message.sendMessage(
       player,
-      config.rootSection.getBaseEnvironment()
-        .withStaticVariable("owner", name)
-        .withStaticVariable("region", region.getId())
-        .build()
+      new InterpretationEnvironment()
+        .withVariable("owner", name)
+        .withVariable("region", region.getId())
     );
 
     return true;

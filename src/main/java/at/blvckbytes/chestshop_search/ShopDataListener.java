@@ -1,6 +1,7 @@
 package at.blvckbytes.chestshop_search;
 
 import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.cm_mapper.ConfigKeeper;
 import com.Acrobot.Breeze.Utils.InventoryUtil;
 import com.Acrobot.Breeze.Utils.PriceUtil;
 import com.Acrobot.ChestShop.Events.ItemParseEvent;
@@ -13,7 +14,6 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Directional;
@@ -253,8 +253,7 @@ public class ShopDataListener implements Listener {
       buyPrice,
       sellPrice,
       stock,
-      size,
-      config
+      size
     );
 
     chestShopRegistry.onCreation(shopEntry);

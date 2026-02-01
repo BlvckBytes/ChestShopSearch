@@ -1,23 +1,15 @@
 package at.blvckbytes.chestshop_search.display.result;
 
 import at.blvckbytes.chestshop_search.ChestShopEntry;
-import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import com.google.gson.JsonObject;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
 
 import java.util.*;
 
 public class SelectionState {
 
-  private static class SortingCriterionSelection {
-    final ShopSortingCriteria criterion;
-    SortingSelection selection;
-
-    SortingCriterionSelection(ShopSortingCriteria criterion, SortingSelection selection) {
-      this.criterion = criterion;
-      this.selection = selection;
-    }
-  }
+  // FIXME: It would certainly be far cleaner to directly operate on the instances which are also
+  //        accessed by the markup, instead of keeping separate indices and maps.
 
   private List<SortingCriterionSelection> sortingSelections;
   private int selectedSortingSelectionIndex;
@@ -44,7 +36,7 @@ public class SelectionState {
 
   public void resetFiltering() {
     this.filteringSelections = makeDefaultFilteringSelections();
-    this.selectedFilteringCriteria = ShopFilteringCriteria.values.get(0);
+    this.selectedFilteringCriteria = ShopFilteringCriteria.values.getFirst();
   }
 
   public void resetSorting() {
@@ -124,16 +116,23 @@ public class SelectionState {
     return result;
   }
 
-  public EvaluationEnvironmentBuilder makeSortingEnvironment(MainSection mainSection) {
-    return mainSection.getBaseEnvironment()
-      .withLiveVariable("sorting_selections", () -> this.sortingSelections)
-      .withLiveVariable("selected_index", () -> selectedSortingSelectionIndex);
+  public void extendSortingEnvironment(InterpretationEnvironment environment) {
+    for (var index = 0; index < sortingSelections.size(); ++index)
+      sortingSelections.get(index).active = index == selectedSortingSelectionIndex;
+
+    environment.withVariable("sorting_selections", this.sortingSelections);
   }
 
-  public EvaluationEnvironmentBuilder makeFilteringEnvironment(MainSection mainSection) {
-    return mainSection.getBaseEnvironment()
-      .withLiveVariable("filtering_selections", () -> this.filteringSelections)
-      .withLiveVariable("selected_criteria", () -> this.selectedFilteringCriteria);
+  public void extendFilteringEnvironment(InterpretationEnvironment environment) {
+    var mappedSelections = new ArrayList<FilteringCriterionSelection>();
+
+    for (var entry : this.filteringSelections.entrySet()) {
+      var selection = new FilteringCriterionSelection(entry.getKey(), entry.getValue());
+      selection.active = selection.criterion == selectedFilteringCriteria;
+      mappedSelections.add(selection);
+    }
+
+    environment.withVariable("filtering_selections", mappedSelections);
   }
 
   public JsonObject toJson() {

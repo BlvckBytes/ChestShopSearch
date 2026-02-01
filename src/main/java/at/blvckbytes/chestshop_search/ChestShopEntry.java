@@ -1,15 +1,10 @@
 package at.blvckbytes.chestshop_search;
 
-import at.blvckbytes.chestshop_search.config.MainSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
-import me.blvckbytes.bukkitevaluable.ConfigKeeper;
-import me.blvckbytes.bukkitevaluable.IItemBuildable;
-import me.blvckbytes.bukkitevaluable.ItemBuilder;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
-import me.blvckbytes.gpeee.interpreter.IEvaluationEnvironment;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -33,13 +28,9 @@ public class ChestShopEntry {
   public final double sellPrice;
   public final BlockVector3 blockVector;
 
-  public final IEvaluationEnvironment shopEnvironment;
-
   public int stock;
   public int containerSize;
 
-  private final ConfigKeeper<MainSection> config;
-  private IItemBuildable representativeBuildable;
 
   public ChestShopEntry(
     ItemStack item,
@@ -49,8 +40,7 @@ public class ChestShopEntry {
     double buyPrice,
     double sellPrice,
     int stock,
-    int containerSize,
-    ConfigKeeper<MainSection> config
+    int containerSize
   ) {
     this.item = item;
     this.owner = owner;
@@ -60,25 +50,23 @@ public class ChestShopEntry {
     this.sellPrice = sellPrice;
     this.stock = stock;
     this.containerSize = containerSize;
-    this.config = config;
     this.blockVector = BukkitAdapter.adapt(signLocation).toVector().toBlockPoint();
+  }
 
-    this.shopEnvironment = new EvaluationEnvironmentBuilder()
-      .withStaticVariable("owner", owner)
-      .withStaticVariable("quantity", quantity)
-      .withStaticVariable("buy_price", DECIMAL_FORMAT.format(buyPrice))
-      .withStaticVariable("sell_price", DECIMAL_FORMAT.format(sellPrice))
-      .withLiveVariable("remaining_stock", () -> this.stock)
-      .withLiveVariable("remaining_space", this::calculateSpace)
-      .withLiveVariable("can_buy", () -> buyPrice >= 0)
-      .withLiveVariable("can_sell", () -> sellPrice >= 0)
-      .withStaticVariable("loc_world", signLocation.getWorld().getName())
-      .withStaticVariable("loc_x", signLocation.getBlockX())
-      .withStaticVariable("loc_y", signLocation.getBlockY())
-      .withStaticVariable("loc_z", signLocation.getBlockZ())
-      .build();
-
-    this.updateBuildable();
+  public InterpretationEnvironment getEnvironment() {
+    return new InterpretationEnvironment()
+      .withVariable("owner", owner)
+      .withVariable("quantity", quantity)
+      .withVariable("buy_price", DECIMAL_FORMAT.format(buyPrice))
+      .withVariable("sell_price", DECIMAL_FORMAT.format(sellPrice))
+      .withVariable("remaining_stock", this.stock)
+      .withVariable("remaining_space", this.calculateSpace())
+      .withVariable("can_buy", buyPrice >= 0)
+      .withVariable("can_sell", sellPrice >= 0)
+      .withVariable("loc_world", signLocation.getWorld().getName())
+      .withVariable("loc_x", signLocation.getBlockX())
+      .withVariable("loc_y", signLocation.getBlockY())
+      .withVariable("loc_z", signLocation.getBlockZ());
   }
 
   public double getUnitBuyPrice() {
@@ -93,14 +81,6 @@ public class ChestShopEntry {
       return sellPrice;
 
     return sellPrice / quantity;
-  }
-
-  public void updateBuildable() {
-    this.representativeBuildable = new ItemBuilder(item, item.getAmount()).patch(config.rootSection.resultDisplay.items.representativePatch);
-  }
-
-  public IItemBuildable getRepresentativeBuildable() {
-    return this.representativeBuildable;
   }
 
   public int calculateSpace() {
@@ -131,7 +111,7 @@ public class ChestShopEntry {
     }
   }
 
-  public static @Nullable ChestShopEntry fromJson(JsonElement json, ConfigKeeper<MainSection> config, Logger logger) {
+  public static @Nullable ChestShopEntry fromJson(JsonElement json, Logger logger) {
     try {
       var yamlConfig = YamlConfiguration.loadConfiguration(new StringReader(json.getAsString()));
 
@@ -143,8 +123,7 @@ public class ChestShopEntry {
         yamlConfig.getDouble("buyPrice"),
         yamlConfig.getDouble("sellPrice"),
         yamlConfig.getInt("stock"),
-        yamlConfig.getInt("containerSize", 0),
-        config
+        yamlConfig.getInt("containerSize", 0)
       );
     } catch (Throwable e) {
       logger.log(Level.WARNING, "An error occurred while trying to parse a shop from it's YAML-representation", e);

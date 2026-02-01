@@ -1,13 +1,14 @@
 package at.blvckbytes.chestshop_search.config.command;
 
-import me.blvckbytes.bukkitevaluable.section.ACommandSection;
-import me.blvckbytes.gpeee.interpreter.EvaluationEnvironmentBuilder;
+import at.blvckbytes.cm_mapper.section.command.CommandSection;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
+import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 
-public class ShopSearchReloadCommandSection extends ACommandSection {
+public class ShopSearchReloadCommandSection extends CommandSection {
 
   public static final String INITIAL_NAME = "shopsearchreload";
 
-  public ShopSearchReloadCommandSection(EvaluationEnvironmentBuilder baseEnvironment) {
-    super(INITIAL_NAME, baseEnvironment);
+  public ShopSearchReloadCommandSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+    super(INITIAL_NAME, baseEnvironment, interpreterLogger);
   }
 }
