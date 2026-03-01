@@ -15,3 +15,8 @@ commands:
   shopsearchreload:
     description: 'Reload the configuration-file of this plugin'
     permission: 'chestshopsearch.reload'
+permissions:
+  chestshopsearch.return-items:
+    description: 'Allows to undo transactions within a configurable time-window'
+  chestshopsearch.toggle.bypass:
+    description: 'Allows to bypass having to be the owner of a region to toggle advertising in the shop-search'
