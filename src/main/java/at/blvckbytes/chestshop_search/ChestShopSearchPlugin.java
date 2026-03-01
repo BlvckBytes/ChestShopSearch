@@ -6,6 +6,7 @@ import at.blvckbytes.chestshop_search.config.command.*;
 import at.blvckbytes.chestshop_search.display.overview.OverviewDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.ResultDisplayHandler;
 import at.blvckbytes.chestshop_search.display.result.SelectionStateStore;
+import at.blvckbytes.chestshop_search.return_items.ReturnItemsListener;
 import at.blvckbytes.cm_mapper.ConfigHandler;
 import at.blvckbytes.cm_mapper.ConfigKeeper;
 import at.blvckbytes.cm_mapper.section.command.CommandUpdater;
@@ -64,6 +65,9 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var predicateHelper = parserPlugin.getPredicateHelper();
 
       Bukkit.getScheduler().runTaskTimerAsynchronously(this, keyValueStore::saveToDisk, 20 * 60L, 20 * 60L);
+
+      var returnItemsListener = new ReturnItemsListener(this, config);
+      Bukkit.getServer().getPluginManager().registerEvents(returnItemsListener, this);
 
       overviewDisplayHandler = new OverviewDisplayHandler(resultDisplayHandler, chestShopRegistry, config, this);
       Bukkit.getServer().getPluginManager().registerEvents(overviewDisplayHandler, this);

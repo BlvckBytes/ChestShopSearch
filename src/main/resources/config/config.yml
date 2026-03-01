@@ -32,6 +32,10 @@ regionFilter:
   shopRegionWorlds:
     - world
 
+returnItems:
+  returnWindowSeconds: 10
+  returnMessage: '<&a>[Shop] <&f><i>You''ve undone your last transaction with this shop.'
+
 playerMessages:
   searchCommandInvalidSearch: '{lut.prefix} <&c>Ungültige Suche: {error}'
   searchCommandNoResults: '{lut.prefix} <&c>Die Suche <&4>{query} <&c>erzielte <&4>keine Ergebnisse<&c>!'
