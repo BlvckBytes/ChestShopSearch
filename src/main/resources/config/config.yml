@@ -126,7 +126,7 @@ resultDisplay:
     backButton:
       slots: 'last_slot - 4'
       type: PLAYER_HEAD
-      textures: '{lut.textures.back]}'
+      textures: '{lut.textures.back}'
       name: |
         <reset>
           <&8>» <&6>Zurück <&8>«
@@ -152,7 +152,7 @@ resultDisplay:
             *let-criterion="lut.sorting_criteria[sorting.criterion] ?? sorting.criterion"
             *let-renderer="lut.sorting_selection[sorting.selection] ?? sorting.selection"
           >
-            <&8><&e *use="sorting.active">➥ <container &renderer />
+            <&8><&e *use="sorting.active">➥ <container [renderer] />
           </container>
           <br/>
           {lut.spacer}<br/>
@@ -177,7 +177,7 @@ resultDisplay:
             *let-criterion="lut.filtering_criteria[filtering.criterion] ?? filtering.criterion"
             *let-renderer="lut.filtering_selection[filtering.selection] ?? filtering.selection"
           >
-            <&8><&e *use="filtering.active">➥ <container &renderer />
+            <&8><&e *use="filtering.active">➥ <container [renderer] />
           </container>
           <br/>
           {lut.spacer}<br/>
