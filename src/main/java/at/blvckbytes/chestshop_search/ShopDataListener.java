@@ -66,33 +66,15 @@ public class ShopDataListener implements Listener {
 
   @EventHandler
   public void onShopTransaction(TransactionEvent event) {
-    int totalAmountTransferred = 0;
-    ItemStack shopItem = null;
+    var transactionItem = TransactionItem.of(event.getStock(), logger);
 
-    for (var item : event.getStock()) {
-      if (item == null || item.getType().isAir() || item.getAmount() < 0)
-        continue;
-
-      totalAmountTransferred += item.getAmount();
-
-      if (shopItem == null) {
-        shopItem = item;
-        continue;
-      }
-
-      if (!shopItem.isSimilar(item)) {
-        logger.log(Level.SEVERE, "Expected all items within a transaction to be similar to each-other; ignoring this transaction!");
-        return;
-      }
-    }
-
-    if (shopItem == null)
+    if (transactionItem == null)
       return;
 
     var eventSign = event.getSign();
     var shopSigns = new HashMap<Location, ItemStack>();
 
-    shopSigns.put(eventSign.getLocation(), shopItem);
+    shopSigns.put(eventSign.getLocation(), transactionItem.itemClone());
 
     var signBlock = eventSign.getBlock();
     var signFacing = ((Directional) signBlock.getBlockData()).getFacing();
@@ -105,10 +87,10 @@ public class ShopDataListener implements Listener {
     for (var signEntry : shopSigns.entrySet()) {
       // There may be multiple different items sold/bought from/into the very same physical
       // container, so only relay the transaction to the shops that are affected by it.
-      if (!shopItem.isSimilar(signEntry.getValue()))
+      if (!transactionItem.itemClone().isSimilar(signEntry.getValue()))
         continue;
 
-      chestShopRegistry.onTransaction(signEntry.getKey(), totalAmountTransferred, wasBuy);
+      chestShopRegistry.onTransaction(signEntry.getKey(), transactionItem.totalAmount(), wasBuy);
     }
   }
 
