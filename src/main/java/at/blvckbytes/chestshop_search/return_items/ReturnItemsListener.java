@@ -3,6 +3,7 @@ package at.blvckbytes.chestshop_search.return_items;
 import at.blvckbytes.chestshop_search.TransactionItem;
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.cm_mapper.ConfigKeeper;
+import com.Acrobot.ChestShop.Containers.AdminInventory;
 import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
 import org.bukkit.Bukkit;
@@ -52,6 +53,19 @@ public class ReturnItemsListener implements Listener {
       return;
 
     event.setExactPrice(lastCorrespondingTransaction.exactPrice);
+
+    if (lastCorrespondingTransaction.transactionItem.totalAmount != transactionItem.totalAmount) {
+      event.setStock(lastCorrespondingTransaction.transactionItem.recreateStock());
+
+      // They create a virtual admin-inventory for non-container-backed shops, so if we want to alter the
+      // stock, we need to also update the contents of the inventory, as for the move to succeed later on.
+
+      // Also, let's create an independent stock-array, as I'm not sure on whether we'll run into
+      // complications otherwise; it's cheap enough to do so, really.
+
+      if (event.getOwnerInventory() instanceof AdminInventory)
+        event.getOwnerInventory().setContents(lastCorrespondingTransaction.transactionItem.recreateStock());
+    }
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

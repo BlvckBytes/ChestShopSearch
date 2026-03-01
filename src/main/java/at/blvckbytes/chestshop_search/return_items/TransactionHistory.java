@@ -62,10 +62,7 @@ public class TransactionHistory {
       if (transactionType == transaction.transactionType)
         continue;
 
-      if (transactionItem.totalAmount() != transaction.transactionItem.totalAmount())
-        continue;
-
-      if (!transactionItem.itemClone().isSimilar(transaction.transactionItem.itemClone()))
+      if (!transactionItem.itemClone.isSimilar(transaction.transactionItem.itemClone))
         continue;
 
       return transaction;
