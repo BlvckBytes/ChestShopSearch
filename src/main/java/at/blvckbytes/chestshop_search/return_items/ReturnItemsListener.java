@@ -7,14 +7,12 @@ import com.Acrobot.ChestShop.Configuration.Properties;
 import com.Acrobot.ChestShop.Containers.AdminInventory;
 import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.Acrobot.ChestShop.Events.TransactionEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredListener;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -32,8 +30,6 @@ public class ReturnItemsListener implements Listener {
     this.config = config;
 
     this.historyByClientId = new HashMap<>();
-
-    Bukkit.getScheduler().runTaskLater(plugin, this::reorderEventHandlers, 1);
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -134,7 +130,7 @@ public class ReturnItemsListener implements Listener {
     overrideStock(event, newStock);
   }
 
-  private void overrideStock(PreTransactionEvent event, ItemStack[] newStock) {
+  public static void overrideStock(PreTransactionEvent event, ItemStack[] newStock) {
     event.setStock(newStock);
 
     // They create a virtual admin-inventory for non-container-backed shops, so if we want to alter the
@@ -146,36 +142,12 @@ public class ReturnItemsListener implements Listener {
     }
   }
 
-  private ItemStack[] deepCloneItemArray(ItemStack[] input) {
+  private static ItemStack[] deepCloneItemArray(ItemStack[] input) {
     var result = new ItemStack[input.length];
 
     for (var index = 0; index < result.length; ++index)
       result[index] = new ItemStack(input[index]);
 
     return result;
-  }
-
-  private void reorderEventHandlers() {
-    var handlerList = PreTransactionEvent.getHandlerList();
-    var registeredListeners = handlerList.getRegisteredListeners();
-
-    var ourListeners = new ArrayList<RegisteredListener>();
-
-    for (var registeredListener : registeredListeners) {
-      handlerList.unregister(registeredListener);
-
-      if (registeredListener.getPlugin() == this.plugin)
-        ourListeners.add(registeredListener);
-    }
-
-    for (var ourListener : ourListeners)
-      handlerList.register(ourListener);
-
-    for (var registeredListener : registeredListeners) {
-      if (registeredListener.getPlugin() == this.plugin)
-        continue;
-
-      handlerList.register(registeredListener);
-    }
   }
 }

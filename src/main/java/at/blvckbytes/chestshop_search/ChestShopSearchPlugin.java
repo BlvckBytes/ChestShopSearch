@@ -10,10 +10,12 @@ import at.blvckbytes.chestshop_search.return_items.ReturnItemsListener;
 import at.blvckbytes.cm_mapper.ConfigHandler;
 import at.blvckbytes.cm_mapper.ConfigKeeper;
 import at.blvckbytes.cm_mapper.section.command.CommandUpdater;
+import com.Acrobot.ChestShop.Events.PreTransactionEvent;
 import com.cryptomorin.xseries.XMaterial;
 import me.blvckbytes.item_predicate_parser.ItemPredicateParserPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
@@ -95,6 +97,17 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       updateCommands.run();
       config.registerReloadListener(updateCommands);
+
+      var buyCommand = Objects.requireNonNull(getCommand("buy"));
+      var sellCommand = Objects.requireNonNull(getCommand("sell"));
+
+      var buySellExecutor = new BuySellCommands(config, this, buyCommand, sellCommand);
+      Bukkit.getPluginManager().registerEvents(buySellExecutor, this);
+
+      buyCommand.setExecutor(buySellExecutor);
+      sellCommand.setExecutor(buySellExecutor);
+
+      Bukkit.getScheduler().runTaskLater(this, this::reorderPreTransactionEventHandlers, 1);
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);
       Bukkit.getPluginManager().disablePlugin(this);
@@ -126,6 +139,30 @@ public class ChestShopSearchPlugin extends JavaPlugin {
     if (overviewDisplayHandler != null) {
       overviewDisplayHandler.onShutdown();
       overviewDisplayHandler = null;
+    }
+  }
+
+  private void reorderPreTransactionEventHandlers() {
+    var handlerList = PreTransactionEvent.getHandlerList();
+    var registeredListeners = handlerList.getRegisteredListeners();
+
+    var ourListeners = new ArrayList<RegisteredListener>();
+
+    for (var registeredListener : registeredListeners) {
+      handlerList.unregister(registeredListener);
+
+      if (registeredListener.getPlugin() == this)
+        ourListeners.add(registeredListener);
+    }
+
+    for (var ourListener : ourListeners)
+      handlerList.register(ourListener);
+
+    for (var registeredListener : registeredListeners) {
+      if (registeredListener.getPlugin() == this)
+        continue;
+
+      handlerList.register(registeredListener);
     }
   }
 

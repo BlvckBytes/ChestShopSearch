@@ -34,7 +34,7 @@ regionFilter:
 
 returnItems:
   returnWindowSeconds: 10
-  returnMessage: '<&a>[Shop] <&f><i>You''ve undone your last transaction with this shop.'
+  returnMessage: '<&a>[Shop] <&f><i>Die letzte Transaktion des Shops wurde rückgängig gemacht.'
 
 playerMessages:
   searchCommandInvalidSearch: '{lut.prefix} <&c>Ungültige Suche: {error}'
@@ -48,6 +48,11 @@ playerMessages:
   shopSearchToggleNowInvisible: '{lut.prefix} <&7>Die Sichtbarkeit der Region <&a>{region} <&7>von <&a>{owner} <&7>ist nun <&c>deaktiviert<&7>!'
   pluginReloadedSuccess: '{lut.prefix} <&7>Das Plugin wurde erfolgreich <&a>neu geladen<&7>.'
   pluginReloadedError: '{lut.prefix} <&c>Ein Fehler trat während des Ladeprozesses auf. Überprüfe die Konsole!'
+  notLookingAtShopSign: '<&a>[Shop] <&c>Du siehst aktuell kein Shop-Schild an!'
+  buySellNoPermission: '<&a>[Shop] <&c>Dir fehlen die Zugriffsrechte zu diesem Befehl!'
+  buySellUsage: '<&a>[Shop] <&c>Benutze: /{label} \<<&4>Anzahl<&c>>'
+  buySellMalformedAmount: '<&a>[Shop] <&c>Keine valide Ganzzahl oder Ausdruck: <&4>{amount}<&c>!'
+  buySellAmountInvalid: '<&a>[Shop] <&c>Die Anzahl muss größer als Null sein: <&4>{amount}<&c>!'
 
 resultDisplay:
   title: |

@@ -18,6 +18,11 @@ public class PlayerMessagesSection extends ConfigSection {
   public ComponentMarkup shopSearchToggleNowInvisible;
   public ComponentMarkup pluginReloadedSuccess;
   public ComponentMarkup pluginReloadedError;
+  public ComponentMarkup notLookingAtShopSign;
+  public ComponentMarkup buySellNoPermission;
+  public ComponentMarkup buySellUsage;
+  public ComponentMarkup buySellMalformedAmount;
+  public ComponentMarkup buySellAmountInvalid;
 
   public PlayerMessagesSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);
