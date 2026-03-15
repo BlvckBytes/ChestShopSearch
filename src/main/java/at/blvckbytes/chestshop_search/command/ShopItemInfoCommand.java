@@ -2,9 +2,10 @@ package at.blvckbytes.chestshop_search.command;
 
 import at.blvckbytes.chestshop_search.config.MainSection;
 import at.blvckbytes.cm_mapper.ConfigKeeper;
+import at.blvckbytes.component_markup.constructor.SlotType;
+import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
 import com.Acrobot.ChestShop.Events.ItemParseEvent;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Tag;
@@ -30,12 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class ShopItemCommand implements CommandExecutor, TabCompleter, Listener {
+public class ShopItemInfoCommand implements CommandExecutor, TabCompleter, Listener {
 
   private final ConfigKeeper<MainSection> config;
   private final Map<UUID, Inventory> previewInventoryByPlayerId;
 
-  public ShopItemCommand(ConfigKeeper<MainSection> config) {
+  public ShopItemInfoCommand(ConfigKeeper<MainSection> config) {
     this.config = config;
     this.previewInventoryByPlayerId = new HashMap<>();
   }
@@ -83,7 +84,18 @@ public class ShopItemCommand implements CommandExecutor, TabCompleter, Listener 
       return true;
     }
 
-    var inventory = Bukkit.createInventory(null, 9 * 3, Component.text("/" + label));
+    var inventory = Bukkit.createInventory(
+      null,
+      9 * 3,
+      config.rootSection.shopItemInfo.previewTitle.interpret(
+        SlotType.INVENTORY_TITLE,
+        new InterpretationEnvironment()
+          .withVariable("command_label", label)
+          .withVariable("x", sign.getX())
+          .withVariable("y", sign.getY())
+          .withVariable("z", sign.getZ())
+      ).getFirst()
+    );
 
     inventory.setItem(13, item);
 

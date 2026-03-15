@@ -19,7 +19,7 @@ commands:
     description: 'Buy a specified amount from the currently looked-at shop-sign'
   sell:
     description: 'Sell a specified amount to the currently looked-at shop-sign'
-  shopitem:
+  shopiteminfo:
     description: 'Opens an item-preview of the currently looked-at shop-sign'
 permissions:
   chestshopsearch.return-items:

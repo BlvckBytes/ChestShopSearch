@@ -80,17 +80,24 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       var shopSearchToggleCommand = Objects.requireNonNull(getCommand(ShopSearchToggleCommandSection.INITIAL_NAME));
       var shopOverviewCommand = Objects.requireNonNull(getCommand(ShopOverviewCommandSection.INITIAL_NAME));
       var shopSearchReloadCommand = Objects.requireNonNull(getCommand(ShopSearchReloadCommandSection.INITIAL_NAME));
+      var shopItemInfoCommand = Objects.requireNonNull(getCommand(ShopItemInfoCommandSection.INITIAL_NAME));
 
       shopSearchCommand.setExecutor(new ShopSearchCommand(chestShopRegistry, predicateHelper, resultDisplayHandler, config));
       shopSearchToggleCommand.setExecutor(new ShopSearchToggleCommand(keyValueStore, dataListener, config));
       shopOverviewCommand.setExecutor(new ShopOverviewCommand(chestShopRegistry, overviewDisplayHandler));
       shopSearchReloadCommand.setExecutor(new ShopSearchReloadCommand(config, logger));
 
+      var shopItemExecutor = new ShopItemInfoCommand(config);
+      Bukkit.getPluginManager().registerEvents(shopItemExecutor, this);
+
+      shopItemInfoCommand.setExecutor(shopItemExecutor);
+
       Runnable updateCommands = () -> {
         config.rootSection.commands.shopSearch.apply(shopSearchCommand, commandUpdater);
         config.rootSection.commands.shopSearchToggle.apply(shopSearchToggleCommand, commandUpdater);
         config.rootSection.commands.shopOverview.apply(shopOverviewCommand, commandUpdater);
         config.rootSection.commands.shopSearchReload.apply(shopSearchReloadCommand, commandUpdater);
+        config.rootSection.commands.shopItemInfo.apply(shopItemInfoCommand, commandUpdater);
 
         commandUpdater.trySyncCommands();
       };
@@ -106,13 +113,6 @@ public class ChestShopSearchPlugin extends JavaPlugin {
 
       buyCommand.setExecutor(buySellExecutor);
       sellCommand.setExecutor(buySellExecutor);
-
-      var shopItemCommand = Objects.requireNonNull(getCommand("shopitem"));
-
-      var shopItemExecutor = new ShopItemCommand(config);
-      Bukkit.getPluginManager().registerEvents(shopItemExecutor, this);
-
-      shopItemCommand.setExecutor(shopItemExecutor);
 
       Bukkit.getScheduler().runTaskLater(this, this::reorderPreTransactionEventHandlers, 1);
     } catch (Throwable e) {

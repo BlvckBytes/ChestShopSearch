@@ -16,6 +16,7 @@ public class MainSection extends ConfigSection {
   public RegionFilterSection regionFilter;
   public ResultDisplaySection resultDisplay;
   public ReturnItemsSection returnItems;
+  public ShopItemInfoSection shopItemInfo;
 
   public MainSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);

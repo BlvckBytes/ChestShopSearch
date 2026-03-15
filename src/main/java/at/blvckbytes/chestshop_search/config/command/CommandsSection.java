@@ -12,6 +12,7 @@ public class CommandsSection extends ConfigSection {
   public ShopSearchToggleCommandSection shopSearchToggle;
   public ShopOverviewCommandSection shopOverview;
   public ShopSearchReloadCommandSection shopSearchReload;
+  public ShopItemInfoCommandSection shopItemInfo;
 
   public CommandsSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);

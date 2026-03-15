@@ -26,6 +26,10 @@ commands:
     name: shopsearchreload
     aliases:
       - shsrl
+  shopItemInfo:
+    name: shopiteminfo
+    aliases:
+      - sii
 
 regionFilter:
   shopRegionPattern: '^(shop[0-9]+)|adminshop|zoospawn$'
@@ -35,6 +39,9 @@ regionFilter:
 returnItems:
   returnWindowSeconds: 10
   returnMessage: '<&a>[Shop] <&f><i>Die letzte Transaktion des Shops wurde rückgängig gemacht.'
+
+shopItemInfo:
+  previewTitle: '<&8>Shop-Vorschau ({x}, {y}, {z})'
 
 playerMessages:
   searchCommandInvalidSearch: '{lut.prefix} <&c>Ungültige Suche: {error}'
