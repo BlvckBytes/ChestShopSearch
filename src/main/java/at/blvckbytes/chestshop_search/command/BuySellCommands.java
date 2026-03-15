@@ -22,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -252,6 +253,11 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
     }
 
     var signBlock = rayTraceResult.getHitBlock();
+
+    if (!(signBlock.getState() instanceof Sign sign) || !ChestShopSign.isValid(sign)) {
+      config.rootSection.playerMessages.notLookingAtShopSign.sendMessage(player);
+      return;
+    }
 
     //noinspection UnstableApiUsage
     var fakeInteractionEvent = new PlayerInteractEvent(

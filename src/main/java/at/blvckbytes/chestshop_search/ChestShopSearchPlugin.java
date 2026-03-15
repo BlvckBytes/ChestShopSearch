@@ -107,6 +107,13 @@ public class ChestShopSearchPlugin extends JavaPlugin {
       buyCommand.setExecutor(buySellExecutor);
       sellCommand.setExecutor(buySellExecutor);
 
+      var shopItemCommand = Objects.requireNonNull(getCommand("shopitem"));
+
+      var shopItemExecutor = new ShopItemCommand(config);
+      Bukkit.getPluginManager().registerEvents(shopItemExecutor, this);
+
+      shopItemCommand.setExecutor(shopItemExecutor);
+
       Bukkit.getScheduler().runTaskLater(this, this::reorderPreTransactionEventHandlers, 1);
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);
