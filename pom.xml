@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.blvckbytes</groupId>
-    <artifactId>ChestShopSearch</artifactId>
+    <artifactId>ChestShopExtensions</artifactId>
     <version>0.6</version>
 
     <properties>
@@ -116,27 +116,27 @@
                     <relocations>
                         <relocation>
                             <pattern>at.blvckbytes.cm_mapper</pattern>
-                            <shadedPattern>at.blvckbytes.chestshop_search.cm_mapper</shadedPattern>
+                            <shadedPattern>at.blvckbytes.chestshop_extensions.cm_mapper</shadedPattern>
                         </relocation>
 
                         <relocation>
                             <pattern>at.blvckbytes.component_markup</pattern>
-                            <shadedPattern>at.blvckbytes.chestshop_search.component_markup</shadedPattern>
+                            <shadedPattern>at.blvckbytes.chestshop_extensions.component_markup</shadedPattern>
                         </relocation>
 
                         <relocation>
                             <pattern>com.cryptomorin.xseries</pattern>
-                            <shadedPattern>at.blvckbytes.chestshop_search.xseries</shadedPattern>
+                            <shadedPattern>at.blvckbytes.chestshop_extensions.xseries</shadedPattern>
                         </relocation>
 
                         <relocation>
                             <pattern>org.jetbrains.annotations</pattern>
-                            <shadedPattern>at.blvckbytes.chestshop_search.jetbrains_annotations</shadedPattern>
+                            <shadedPattern>at.blvckbytes.chestshop_extensions.jetbrains_annotations</shadedPattern>
                         </relocation>
 
                         <relocation>
                             <pattern>org.intellij.lang.annotations</pattern>
-                            <shadedPattern>at.blvckbytes.chestshop_search.intellij_annotations</shadedPattern>
+                            <shadedPattern>at.blvckbytes.chestshop_extensions.intellij_annotations</shadedPattern>
                         </relocation>
                     </relocations>
 

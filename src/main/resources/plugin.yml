@@ -1,7 +1,7 @@
-name: ChestShopSearch
+name: ChestShopExtensions
 version: ${project.version}
 author: BlvckBytes
-main: at.blvckbytes.chestshop_search.ChestShopSearchPlugin
+main: at.blvckbytes.chestshop_extensions.ChestShopExtensionsPlugin
 api-version: 1.21
 depend: [WorldGuard, ChestShop, ItemPredicateParser]
 softdepend: [floodgate]
@@ -14,7 +14,7 @@ commands:
     description: 'Browse through shops grouped by their owners'
   shopsearchreload:
     description: 'Reload the configuration-file of this plugin'
-    permission: 'chestshopsearch.reload'
+    permission: 'chestshopextensions.reload'
   buy:
     description: 'Buy a specified amount from the currently looked-at shop-sign'
   sell:
@@ -22,7 +22,7 @@ commands:
   shopiteminfo:
     description: 'Opens an item-preview of the currently looked-at shop-sign'
 permissions:
-  chestshopsearch.transaction-undo:
+  chestshopextensions.transaction-undo:
     description: 'Allows to undo transactions within a configurable time-window'
-  chestshopsearch.toggle.bypass:
+  chestshopextensions.toggle.bypass:
     description: 'Allows to bypass having to be the owner of a region to toggle advertising in the shop-search'
