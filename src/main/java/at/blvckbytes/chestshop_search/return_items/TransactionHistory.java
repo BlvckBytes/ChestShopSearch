@@ -28,7 +28,7 @@ public class TransactionHistory {
   ) {
     recentTransactionsByWorldId
       .computeIfAbsent(shopSign.getWorld().getUID(), k -> new ArrayList<>())
-      .add(new ReturnableTransaction(shopSign.getBlock(), transactionType, transactionItem, exactPrice, System.currentTimeMillis()));
+      .add(new ReturnableTransaction(TransactionBlock.fromSign(shopSign), transactionType, transactionItem, exactPrice, System.currentTimeMillis()));
   }
 
   public @Nullable ReturnableTransaction findLastCorrespondingTransaction(
@@ -41,7 +41,7 @@ public class TransactionHistory {
     if (bucket == null || bucket.isEmpty())
       return null;
 
-    var signBlock = shopSign.getBlock();
+    var transactionBlock = TransactionBlock.fromSign(shopSign);
 
     bucket.removeIf(returnableTransaction -> {
       if (returnableTransaction.hasBeenUsedForReturning())
@@ -55,7 +55,7 @@ public class TransactionHistory {
     for (int index = bucket.size() - 1; index >= 0; --index) {
       var transaction = bucket.get(index);
 
-      if (!signBlock.equals(transaction.signBlock))
+      if (!transactionBlock.equals(transaction.transactionBlock))
         continue;
 
       // We're seeking to undo a transaction, so the current type has to be the opposite of what it was prior
