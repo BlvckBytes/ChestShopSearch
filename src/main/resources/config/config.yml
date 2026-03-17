@@ -36,6 +36,23 @@ regionFilter:
   shopRegionWorlds:
     - world
 
+sellGui:
+  inventoryTitle: '<&8>Adminshop-Verkauf'
+  noPermission: '<&a>[Shop] <&c>Du hast keinen Zugriff auf diese Funktion!'
+  openingPrompt: '<&a>[Shop] <&f>Lege Items in das Inventar und schließe es, um sie an den Adminshop zu verkaufen.'
+  emptyInventory: '<&a>[Shop] <&c>Das Verkaufsinventar war leer - breche ab!'
+  unsellableItems: |
+    <&a>[Shop] <&c>Die folgenden Items konnten nicht verkauft werden:<space/>
+    <container *for-item="items" *for-separator={,<space/>}>
+      <&4>{item.count}x <translate [item.key] />
+    </container>.
+  unallowedWorld: '<&a>[Shop] <&c>Dieses Feature steht nur in der Bauwelt zur Verfügung!'
+  unallowedRegion: '<&a>[Shop] <&c>Dieses Feature steht nur innerhalb des Adminshops zur Verfügung!'
+  regionFilter:
+    shopRegionPattern: '^adminshop$'
+    shopRegionWorlds:
+      - world
+
 transactionUndo:
   undoWindowSeconds: 10
   undoMessage: '<&a>[Shop] <&f><i>Die letzte Transaktion des Shops wurde rückgängig gemacht.'

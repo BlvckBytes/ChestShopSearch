@@ -21,6 +21,9 @@ commands:
     description: 'Sell a specified amount to the currently looked-at shop-sign'
   shopiteminfo:
     description: 'Opens an item-preview of the currently looked-at shop-sign'
+  sellgui:
+    description: 'Batch-sell items to the adminshop'
+    permission: 'chestshopextensions.sellgui'
 permissions:
   chestshopextensions.transaction-undo:
     description: 'Allows to undo transactions within a configurable time-window'

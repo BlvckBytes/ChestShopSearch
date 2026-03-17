@@ -1,5 +1,8 @@
 package at.blvckbytes.chestshop_extensions;
 
+import com.Acrobot.Breeze.Utils.PriceUtil;
+import com.Acrobot.ChestShop.Events.ItemParseEvent;
+import com.Acrobot.ChestShop.Signs.ChestShopSign;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -9,7 +12,10 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Sign;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -229,6 +235,63 @@ public class ChestShopRegistry {
         callStockChangeListeners(shop);
       }
     }
+  }
+
+  public @Nullable ChestShopEntry locateValidatedAdminShopToSellItemTo(ItemStack item) {
+    for (var bucket : shopByFastHashByWorldId.values()) {
+      for (var iterator = bucket.long2ObjectEntrySet().iterator(); iterator.hasNext();) {
+        var entry = iterator.next();
+        var shop = entry.getValue();
+
+        if (!isAdminShop(shop.owner))
+          continue;
+
+        if (shop.sellPrice <= 0)
+          continue;
+
+        if (!shop.item.isSimilar(item))
+          continue;
+
+        if (!(shop.signLocation.getBlock().getState() instanceof Sign sign)) {
+          iterator.remove();
+          continue;
+        }
+
+        if (!isAdminShop(ChestShopSign.getOwner(sign))) {
+          iterator.remove();
+          continue;
+        }
+
+        var parseEvent = new ItemParseEvent(ChestShopSign.getItem(sign));
+        Bukkit.getPluginManager().callEvent(parseEvent);
+
+        if (parseEvent.getItem() == null || !parseEvent.getItem().isSimilar(item)) {
+          iterator.remove();
+          continue;
+        }
+
+        var sellPrice = PriceUtil.NO_PRICE;
+
+        try {
+          sellPrice = PriceUtil.getExactSellPrice(ChestShopSign.getPrice(sign));
+        } catch (Throwable ignored) {}
+
+        int quantity = -1;
+
+        try {
+          quantity = ChestShopSign.getQuantity(sign);
+        } catch (Throwable ignored) {}
+
+        if (PriceUtil.NO_PRICE.equals(sellPrice) || quantity != shop.quantity) {
+          iterator.remove();
+          continue;
+        }
+
+        return shop;
+      }
+    }
+
+    return null;
   }
 
   private boolean hasShops(String ownerName) {

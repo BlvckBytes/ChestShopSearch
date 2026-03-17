@@ -17,6 +17,7 @@ public class MainSection extends ConfigSection {
   public ResultDisplaySection resultDisplay;
   public TransactionUndoSection transactionUndo;
   public ShopItemInfoSection shopItemInfo;
+  public SellGuiSection sellGui;
 
   public MainSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);
