@@ -51,7 +51,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
   private final PluginCommand buyCommand;
   private final PluginCommand sellCommand;
 
-  private final Map<UUID, AmountChoice> amountChoiceByPlayerId;
+  private final Map<UUID, List<AmountChoice>> amountChoicesByPlayerId;
   private int currentTime;
 
   public BuySellCommands(
@@ -65,7 +65,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
     this.buyCommand = buyCommand;
     this.sellCommand = sellCommand;
 
-    this.amountChoiceByPlayerId = new HashMap<>();
+    this.amountChoicesByPlayerId = new HashMap<>();
 
     Bukkit.getScheduler().runTaskTimer(plugin, () -> ++currentTime, 1, 1);
   }
@@ -107,7 +107,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
     }
 
     if (args.length == 1 && args[0].equalsIgnoreCase("all")) {
-      simulateInteractionAndStoreAmount(player, -1, doBuy);
+      determineTargetAndPossiblySimulateInteraction(player, -1, doBuy);
       return true;
     }
 
@@ -136,7 +136,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
       return true;
     }
 
-    simulateInteractionAndStoreAmount(player, amount, doBuy);
+    determineTargetAndPossiblySimulateInteraction(player, amount, doBuy);
     return true;
   }
 
@@ -150,59 +150,67 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void onPreTransaction(PreTransactionEvent event) {
-    var amountChoice = amountChoiceByPlayerId.remove(event.getClient().getUniqueId());
-
-    if (amountChoice == null)
-      return;
-
-    if (currentTime - amountChoice.time > 2)
-      return;
-
     // The selected shop does not support the desired transaction-type; simply pass the event on to ChestShop itself.
     if (PriceUtil.NO_PRICE.equals(event.getExactPrice()))
       return;
 
+    var amountChoices = amountChoicesByPlayerId.get(event.getClient().getUniqueId());
+
+    if (amountChoices == null)
+      return;
+
     var signBlock = event.getSign().getBlock();
-
-    if (!signBlock.getLocation().equals(amountChoice.signBlock.getLocation()))
-      return;
-
-    if (amountChoice.doBuy != (event.getTransactionType() == TransactionEvent.TransactionType.BUY))
-      return;
 
     var transactionItem = TransactionItem.of(event.getStock(), logger);
 
     if (transactionItem == null)
       return;
 
-    if (amountChoice.amount < 0) {
-      TransactionUndoListener.overrideStockAndPriceToMaxInventoryCapacity(event, transactionItem);
-      return;
+    for (var iterator = amountChoices.iterator(); iterator.hasNext();) {
+      var amountChoice = iterator.next();
+
+      if (currentTime - amountChoice.time > 2) {
+        iterator.remove();
+        continue;
+      }
+
+      if (!signBlock.getLocation().equals(amountChoice.signBlock.getLocation()))
+        continue;
+
+      if (amountChoice.doBuy != (event.getTransactionType() == TransactionEvent.TransactionType.BUY))
+        continue;
+
+      iterator.remove();
+
+      if (amountChoice.amount < 0) {
+        TransactionUndoListener.overrideStockAndPriceToMaxInventoryCapacity(event, transactionItem);
+        return;
+      }
+
+      var maxStackSize = transactionItem.itemClone.getMaxStackSize();
+      var requiredStacks = (amountChoice.amount + (maxStackSize - 1)) / maxStackSize;
+
+      var newStock = new ItemStack[requiredStacks];
+      var remainingAmount = amountChoice.amount;
+
+      for (var slot = 0; slot < newStock.length; ++slot) {
+        var slotContents = new ItemStack(transactionItem.itemClone);
+        var currentAmount = Math.min(maxStackSize, remainingAmount);
+
+        slotContents.setAmount(currentAmount);
+        remainingAmount -= currentAmount;
+
+        newStock[slot] = slotContents;
+      }
+
+      TransactionUndoListener.overrideStock(event, newStock);
+
+      var scaledPrice = event.getExactPrice()
+        .divide(BigDecimal.valueOf(transactionItem.totalAmount), MathContext.DECIMAL128)
+        .multiply(BigDecimal.valueOf(amountChoice.amount));
+
+      event.setExactPrice(scaledPrice);
     }
-
-    var maxStackSize = transactionItem.itemClone.getMaxStackSize();
-    var requiredStacks = (amountChoice.amount + (maxStackSize - 1)) / maxStackSize;
-
-    var newStock = new ItemStack[requiredStacks];
-    var remainingAmount = amountChoice.amount;
-
-    for (var slot = 0; slot < newStock.length; ++slot) {
-      var slotContents = new ItemStack(transactionItem.itemClone);
-      var currentAmount = Math.min(maxStackSize, remainingAmount);
-
-      slotContents.setAmount(currentAmount);
-      remainingAmount -= currentAmount;
-
-      newStock[slot] = slotContents;
-    }
-
-    TransactionUndoListener.overrideStock(event, newStock);
-
-    var scaledPrice = event.getExactPrice()
-      .divide(BigDecimal.valueOf(transactionItem.totalAmount), MathContext.DECIMAL128)
-      .multiply(BigDecimal.valueOf(amountChoice.amount));
-
-    event.setExactPrice(scaledPrice);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -271,10 +279,10 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
 
   @EventHandler
   public void onQuit(PlayerQuitEvent event) {
-    amountChoiceByPlayerId.remove(event.getPlayer().getUniqueId());
+    amountChoicesByPlayerId.remove(event.getPlayer().getUniqueId());
   }
 
-  private void simulateInteractionAndStoreAmount(Player player, int amount, boolean doBuy) {
+  private void determineTargetAndPossiblySimulateInteraction(Player player, int amount, boolean doBuy) {
     var signInfos = ShopItemInfoCommand.getTargetedSignInfos(player);
 
     if (signInfos.isEmpty()) {
@@ -315,20 +323,34 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
     if (PriceUtil.NO_PRICE.equals(firstInfo.getNormalizedPrice(doBuy)) && !priceContainingInfos.isEmpty())
       firstInfo = priceContainingInfos.getFirst();
 
-    var signBlock = firstInfo.sign().getBlock();
+    simulateParameterizedInteraction(player, firstInfo.sign().getBlock(), doBuy, amount);
+  }
 
-    //noinspection UnstableApiUsage
-    var fakeInteractionEvent = new PlayerInteractEvent(
-      player,
-      getActionForInteraction(doBuy),
-      player.getInventory().getItemInMainHand(),
-      signBlock,
-      BlockFace.SELF
-    );
+  public void simulateParameterizedInteraction(Player player, Block signBlock, boolean doBuy, int amount) {
+    var savedInterval = Properties.SHOP_INTERACTION_INTERVAL;
 
-    amountChoiceByPlayerId.put(player.getUniqueId(), new AmountChoice(signBlock, amount, doBuy, currentTime));
+    try {
+      // Yep - that's quite the hack... But otherwise, we cannot use this helper in a loop, which would
+      // be a bummer; temporarily disabling their built-in debounce isn't going to hurt anybody.
+      Properties.SHOP_INTERACTION_INTERVAL = 0;
 
-    Bukkit.getServer().getPluginManager().callEvent(fakeInteractionEvent);
+      //noinspection UnstableApiUsage
+      var fakeInteractionEvent = new PlayerInteractEvent(
+        player,
+        getActionForInteraction(doBuy),
+        player.getInventory().getItemInMainHand(),
+        signBlock,
+        BlockFace.SELF
+      );
+
+      amountChoicesByPlayerId
+        .computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>())
+        .add(new AmountChoice(signBlock, amount, doBuy, currentTime));
+
+      Bukkit.getServer().getPluginManager().callEvent(fakeInteractionEvent);
+    } finally {
+      Properties.SHOP_INTERACTION_INTERVAL = savedInterval;
+    }
   }
 
   private Action getActionForInteraction(boolean doBuy) {
