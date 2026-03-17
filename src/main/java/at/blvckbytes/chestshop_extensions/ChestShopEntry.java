@@ -11,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
 import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -28,9 +30,11 @@ public class ChestShopEntry {
   public final double sellPrice;
   public final BlockVector3 blockVector;
 
+  public final BigDecimal normalizedBuyPrice;
+  public final BigDecimal normalizedSellPrice;
+
   public int stock;
   public int containerSize;
-
 
   public ChestShopEntry(
     ItemStack item,
@@ -51,6 +55,9 @@ public class ChestShopEntry {
     this.stock = stock;
     this.containerSize = containerSize;
     this.blockVector = BukkitAdapter.adapt(signLocation).toVector().toBlockPoint();
+
+    this.normalizedBuyPrice = quantity <= 0 ? new BigDecimal(buyPrice) : new BigDecimal(buyPrice).divide(new BigDecimal(quantity), MathContext.DECIMAL128);
+    this.normalizedSellPrice = quantity <= 0 ? new BigDecimal(sellPrice) : new BigDecimal(sellPrice).divide(new BigDecimal(quantity), MathContext.DECIMAL128);
   }
 
   public InterpretationEnvironment getEnvironment() {
@@ -67,20 +74,6 @@ public class ChestShopEntry {
       .withVariable("loc_x", signLocation.getBlockX())
       .withVariable("loc_y", signLocation.getBlockY())
       .withVariable("loc_z", signLocation.getBlockZ());
-  }
-
-  public double getUnitBuyPrice() {
-    if (quantity <= 0)
-      return buyPrice;
-
-    return buyPrice / quantity;
-  }
-
-  public double getUnitSellPrice() {
-    if (quantity <= 0)
-      return sellPrice;
-
-    return sellPrice / quantity;
   }
 
   public int calculateSpace() {
