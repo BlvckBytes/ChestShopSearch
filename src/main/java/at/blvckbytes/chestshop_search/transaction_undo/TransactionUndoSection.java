@@ -1,4 +1,4 @@
-package at.blvckbytes.chestshop_search.return_items;
+package at.blvckbytes.chestshop_search.transaction_undo;
 
 import at.blvckbytes.cm_mapper.cm.ComponentMarkup;
 import at.blvckbytes.cm_mapper.mapper.section.ConfigSection;
@@ -8,12 +8,12 @@ import at.blvckbytes.component_markup.util.logging.InterpreterLogger;
 import java.lang.reflect.Field;
 import java.util.List;
 
-public class ReturnItemsSection extends ConfigSection {
+public class TransactionUndoSection extends ConfigSection {
 
-  public int returnWindowSeconds;
-  public ComponentMarkup returnMessage;
+  public int undoWindowSeconds;
+  public ComponentMarkup undoMessage;
 
-  public ReturnItemsSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
+  public TransactionUndoSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);
   }
 
@@ -21,7 +21,7 @@ public class ReturnItemsSection extends ConfigSection {
   public void afterParsing(List<Field> fields) throws Exception {
     super.afterParsing(fields);
 
-    if (returnWindowSeconds < 0)
-      throw new IllegalStateException("\"returnWindowSeconds\" cannot be less than zero");
+    if (undoWindowSeconds < 0)
+      throw new IllegalStateException("\"undoWindowSeconds\" cannot be less than zero");
   }
 }

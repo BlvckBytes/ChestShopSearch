@@ -22,7 +22,7 @@ commands:
   shopiteminfo:
     description: 'Opens an item-preview of the currently looked-at shop-sign'
 permissions:
-  chestshopsearch.return-items:
+  chestshopsearch.transaction-undo:
     description: 'Allows to undo transactions within a configurable time-window'
   chestshopsearch.toggle.bypass:
     description: 'Allows to bypass having to be the owner of a region to toggle advertising in the shop-search'

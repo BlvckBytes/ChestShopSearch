@@ -2,7 +2,7 @@ package at.blvckbytes.chestshop_search.config;
 
 import at.blvckbytes.chestshop_search.config.command.CommandsSection;
 import at.blvckbytes.chestshop_search.config.result_display.ResultDisplaySection;
-import at.blvckbytes.chestshop_search.return_items.ReturnItemsSection;
+import at.blvckbytes.chestshop_search.transaction_undo.TransactionUndoSection;
 import at.blvckbytes.cm_mapper.mapper.section.CSAlways;
 import at.blvckbytes.cm_mapper.mapper.section.ConfigSection;
 import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvironment;
@@ -15,7 +15,7 @@ public class MainSection extends ConfigSection {
   public PlayerMessagesSection playerMessages;
   public RegionFilterSection regionFilter;
   public ResultDisplaySection resultDisplay;
-  public ReturnItemsSection returnItems;
+  public TransactionUndoSection transactionUndo;
   public ShopItemInfoSection shopItemInfo;
 
   public MainSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {

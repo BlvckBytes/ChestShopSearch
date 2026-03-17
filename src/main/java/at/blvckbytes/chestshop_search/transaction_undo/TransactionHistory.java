@@ -1,4 +1,4 @@
-package at.blvckbytes.chestshop_search.return_items;
+package at.blvckbytes.chestshop_search.transaction_undo;
 
 import at.blvckbytes.chestshop_search.TransactionItem;
 import at.blvckbytes.chestshop_search.config.MainSection;
@@ -13,7 +13,7 @@ import java.util.*;
 public class TransactionHistory {
 
   private final ConfigKeeper<MainSection> config;
-  private final Map<UUID, List<ReturnableTransaction>> recentTransactionsByWorldId;
+  private final Map<UUID, List<UndoableTransaction>> recentTransactionsByWorldId;
 
   public TransactionHistory(ConfigKeeper<MainSection> config) {
     this.config = config;
@@ -28,10 +28,10 @@ public class TransactionHistory {
   ) {
     recentTransactionsByWorldId
       .computeIfAbsent(shopSign.getWorld().getUID(), k -> new ArrayList<>())
-      .add(new ReturnableTransaction(TransactionBlock.fromSign(shopSign), transactionType, transactionItem, exactPrice, System.currentTimeMillis()));
+      .add(new UndoableTransaction(TransactionBlock.fromSign(shopSign), transactionType, transactionItem, exactPrice, System.currentTimeMillis()));
   }
 
-  public @Nullable ReturnableTransaction findLastCorrespondingTransaction(
+  public @Nullable UndoableTransaction findLastCorrespondingTransaction(
     Sign shopSign,
     TransactionEvent.TransactionType transactionType,
     TransactionItem transactionItem
@@ -43,13 +43,13 @@ public class TransactionHistory {
 
     var transactionBlock = TransactionBlock.fromSign(shopSign);
 
-    bucket.removeIf(returnableTransaction -> {
-      if (returnableTransaction.hasBeenUsedForReturning())
+    bucket.removeIf(undoableTransaction -> {
+      if (undoableTransaction.hasBeenUsedForUndoing())
         return true;
 
-      var ageSeconds = (System.currentTimeMillis() - returnableTransaction.timestamp) / 1000;
+      var ageSeconds = (System.currentTimeMillis() - undoableTransaction.timestamp) / 1000;
 
-      return ageSeconds > config.rootSection.returnItems.returnWindowSeconds;
+      return ageSeconds > config.rootSection.transactionUndo.undoWindowSeconds;
     });
 
     for (int index = bucket.size() - 1; index >= 0; --index) {

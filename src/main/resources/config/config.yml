@@ -36,9 +36,9 @@ regionFilter:
   shopRegionWorlds:
     - world
 
-returnItems:
-  returnWindowSeconds: 10
-  returnMessage: '<&a>[Shop] <&f><i>Die letzte Transaktion des Shops wurde rückgängig gemacht.'
+transactionUndo:
+  undoWindowSeconds: 10
+  undoMessage: '<&a>[Shop] <&f><i>Die letzte Transaktion des Shops wurde rückgängig gemacht.'
 
 shopItemInfo:
   previewTitle: '<&8>Shop-Vorschau ({x}, {y}, {z})'

@@ -3,7 +3,7 @@ package at.blvckbytes.chestshop_search.command;
 import at.blvckbytes.chestshop_search.MutableInt;
 import at.blvckbytes.chestshop_search.TransactionItem;
 import at.blvckbytes.chestshop_search.config.MainSection;
-import at.blvckbytes.chestshop_search.return_items.ReturnItemsListener;
+import at.blvckbytes.chestshop_search.transaction_undo.TransactionUndoListener;
 import at.blvckbytes.cm_mapper.ConfigKeeper;
 import at.blvckbytes.component_markup.expression.ast.ExpressionNode;
 import at.blvckbytes.component_markup.expression.interpreter.ExpressionInterpreter;
@@ -176,7 +176,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
       return;
 
     if (amountChoice.amount < 0) {
-      ReturnItemsListener.overrideStockAndPriceToMaxInventoryCapacity(event, transactionItem);
+      TransactionUndoListener.overrideStockAndPriceToMaxInventoryCapacity(event, transactionItem);
       return;
     }
 
@@ -196,7 +196,7 @@ public class BuySellCommands implements CommandExecutor, TabCompleter, Listener 
       newStock[slot] = slotContents;
     }
 
-    ReturnItemsListener.overrideStock(event, newStock);
+    TransactionUndoListener.overrideStock(event, newStock);
 
     var scaledPrice = event.getExactPrice()
       .divide(BigDecimal.valueOf(transactionItem.totalAmount), MathContext.DECIMAL128)

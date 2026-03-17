@@ -1,4 +1,4 @@
-package at.blvckbytes.chestshop_search.return_items;
+package at.blvckbytes.chestshop_search.transaction_undo;
 
 import at.blvckbytes.chestshop_search.TransactionItem;
 import at.blvckbytes.chestshop_search.config.MainSection;
@@ -18,14 +18,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
 
-public class ReturnItemsListener implements Listener {
+public class TransactionUndoListener implements Listener {
 
   private final Plugin plugin;
   private final ConfigKeeper<MainSection> config;
 
   private final Map<UUID, TransactionHistory> historyByClientId;
 
-  public ReturnItemsListener(Plugin plugin, ConfigKeeper<MainSection> config) {
+  public TransactionUndoListener(Plugin plugin, ConfigKeeper<MainSection> config) {
     this.plugin = plugin;
     this.config = config;
 
@@ -39,7 +39,7 @@ public class ReturnItemsListener implements Listener {
     if (transactionItem == null)
       return;
 
-    if (handleReturningItems(event, transactionItem))
+    if (handleUndoingTransaction(event, transactionItem))
       return;
 
     handleBuyingAllFromAdminshop(event, transactionItem);
@@ -47,7 +47,7 @@ public class ReturnItemsListener implements Listener {
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
   public void onTransaction(TransactionEvent event) {
-    if (!event.getClient().hasPermission("chestshopsearch.return-items") || config.rootSection.returnItems.returnWindowSeconds <= 0)
+    if (!event.getClient().hasPermission("chestshopsearch.transaction-undo") || config.rootSection.transactionUndo.undoWindowSeconds <= 0)
       return;
 
     var transactionItem = TransactionItem.of(event.getStock(), plugin.getLogger());
@@ -60,8 +60,8 @@ public class ReturnItemsListener implements Listener {
     var lastCorrespondingTransaction = history.findLastCorrespondingTransaction(event.getSign(), event.getTransactionType(), transactionItem);
 
     if (lastCorrespondingTransaction != null) {
-      lastCorrespondingTransaction.markUsedForReturning();
-      config.rootSection.returnItems.returnMessage.sendMessage(event.getClient());
+      lastCorrespondingTransaction.markUsedForUndoing();
+      config.rootSection.transactionUndo.undoMessage.sendMessage(event.getClient());
       return;
     }
 
@@ -73,8 +73,8 @@ public class ReturnItemsListener implements Listener {
     historyByClientId.remove(event.getPlayer().getUniqueId());
   }
 
-  private boolean handleReturningItems(PreTransactionEvent event, TransactionItem transactionItem) {
-    if (!event.getClient().hasPermission("chestshopsearch.return-items") || config.rootSection.returnItems.returnWindowSeconds <= 0)
+  private boolean handleUndoingTransaction(PreTransactionEvent event, TransactionItem transactionItem) {
+    if (!event.getClient().hasPermission("chestshopsearch.transaction-undo") || config.rootSection.transactionUndo.undoWindowSeconds <= 0)
       return false;
 
     var history = historyByClientId.get(event.getClient().getUniqueId());
