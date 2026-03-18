@@ -38,6 +38,7 @@ regionFilter:
 
 sellGui:
   inventoryTitle: '<&8>Adminshop-Verkauf'
+  inventoryRowCount: 4
   noPermission: '<&a>[Shop] <&c>Du hast keinen Zugriff auf diese Funktion!'
   openingPrompt: '<&a>[Shop] <&f>Lege Items in das Inventar und schließe es, um sie an den Adminshop zu verkaufen.'
   emptyInventory: '<&a>[Shop] <&c>Das Verkaufsinventar war leer - breche ab!'

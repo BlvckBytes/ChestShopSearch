@@ -87,7 +87,7 @@ public class SellGuiCommand implements CommandExecutor, TabCompleter, Listener {
       new InterpretationEnvironment()
     ).getFirst();
 
-    var sellInventory = Bukkit.createInventory(null, 9 * 6, inventoryTitle);
+    var sellInventory = Bukkit.createInventory(null, 9 * config.rootSection.sellGui.inventoryRowCount, inventoryTitle);
 
     sellInventoryByPlayerId.put(player.getUniqueId(), sellInventory);
 
