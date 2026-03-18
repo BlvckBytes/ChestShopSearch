@@ -122,6 +122,10 @@ public class SellGuiCommand implements CommandExecutor, TabCompleter, Listener {
       if (currentItem == null || currentItem.getType().isAir() || currentItem.getAmount() <= 0)
         continue;
 
+      // Capture the amount before adding the item back into the player's inventory,
+      // as it may change down the road when combined with other partial stacks.
+      var amount = currentItem.getAmount();
+
       player.getInventory()
         .addItem(currentItem)
         .values()
@@ -133,14 +137,14 @@ public class SellGuiCommand implements CommandExecutor, TabCompleter, Listener {
       });
 
       if (matchingSoldItem != null) {
-        matchingSoldItem.count().value += currentItem.getAmount();
+        matchingSoldItem.count().value += amount;
         continue;
       }
 
       var matchingUnsoldItem = getOrCreateItemEntry(currentItem, unsellableItems, () -> new ItemAndCount(currentItem, new MutableInt()));
 
       if (matchingUnsoldItem != null)
-        matchingUnsoldItem.count.value += currentItem.getAmount();
+        matchingUnsoldItem.count.value += amount;
     }
 
     if (sellableItems.isEmpty() && unsellableItems.isEmpty()) {
