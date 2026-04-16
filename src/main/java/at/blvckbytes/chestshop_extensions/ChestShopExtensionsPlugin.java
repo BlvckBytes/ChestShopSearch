@@ -130,6 +130,9 @@ public class ChestShopExtensionsPlugin extends JavaPlugin {
 
       invSellCommand.setExecutor(invSellExecutor);
 
+      var exportAdminshopsCommand = Objects.requireNonNull(getCommand("exportadminshops"));
+      exportAdminshopsCommand.setExecutor(new ExportAdminshopsCommand(this, chestShopRegistry, parserPlugin.getTranslationLanguageRegistry()));
+
       Bukkit.getScheduler().runTaskLater(this, this::reorderPreTransactionEventHandlers, 1);
     } catch (Throwable e) {
       logger.log(Level.SEVERE, "An error occurred while trying to enable the plugin", e);

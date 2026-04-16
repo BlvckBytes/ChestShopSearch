@@ -27,6 +27,8 @@ commands:
   invsell:
     description: 'Batch-sell items to the adminshop from your inventory'
     permission: 'chestshopextensions.invsell'
+  exportadminshops:
+    permission: 'chestshopextensions.exportadminshops'
 permissions:
   chestshopextensions.buy-sell:
     description: 'Use the /buy and /sell commands while looking at shops'
