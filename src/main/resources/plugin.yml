@@ -22,8 +22,11 @@ commands:
   shopiteminfo:
     description: 'Opens an item-preview of the currently looked-at shop-sign'
   sellgui:
-    description: 'Batch-sell items to the adminshop'
+    description: 'Batch-sell items to the adminshop from a menu'
     permission: 'chestshopextensions.sellgui'
+  invsell:
+    description: 'Batch-sell items to the adminshop from your inventory'
+    permission: 'chestshopextensions.invsell'
 permissions:
   chestshopextensions.buy-sell:
     description: 'Use the /buy and /sell commands while looking at shops'

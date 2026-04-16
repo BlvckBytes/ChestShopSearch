@@ -24,6 +24,8 @@ public class SellGuiSection extends ConfigSection {
   public ComponentMarkup unallowedWorld;
   public ComponentMarkup unallowedRegion;
 
+  public InvSellSection invSell;
+
   public SellGuiSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);
   }

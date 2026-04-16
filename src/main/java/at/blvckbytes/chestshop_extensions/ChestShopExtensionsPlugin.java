@@ -1,6 +1,7 @@
 package at.blvckbytes.chestshop_extensions;
 
 import at.blvckbytes.chestshop_extensions.command.*;
+import at.blvckbytes.chestshop_extensions.command.inv_sell.InvSellCommand;
 import at.blvckbytes.chestshop_extensions.command.sell_gui.SellGuiCommand;
 import at.blvckbytes.chestshop_extensions.config.MainSection;
 import at.blvckbytes.chestshop_extensions.config.command.*;
@@ -121,6 +122,13 @@ public class ChestShopExtensionsPlugin extends JavaPlugin {
       Bukkit.getPluginManager().registerEvents(sellGuiExecutor, this);
 
       sellGuiCommand.setExecutor(sellGuiExecutor);
+
+      var invSellCommand = Objects.requireNonNull(getCommand("invsell"));
+
+      var invSellExecutor = new InvSellCommand(this, sellGuiExecutor, config);
+      Bukkit.getPluginManager().registerEvents(invSellExecutor, this);
+
+      invSellCommand.setExecutor(invSellExecutor);
 
       Bukkit.getScheduler().runTaskLater(this, this::reorderPreTransactionEventHandlers, 1);
     } catch (Throwable e) {
