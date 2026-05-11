@@ -1,6 +1,7 @@
 package at.blvckbytes.chestshop_extensions.command.inv_sell;
 
 import at.blvckbytes.chestshop_extensions.ChestShopRegistry;
+import at.blvckbytes.chestshop_extensions.OfflinePlayerRegistry;
 import at.blvckbytes.chestshop_extensions.eco_log.EcoLogger;
 import at.blvckbytes.chestshop_extensions.command.sell_gui.SellGuiCommand;
 import at.blvckbytes.chestshop_extensions.command.sell_gui.SellToShopSession;
@@ -11,6 +12,7 @@ import at.blvckbytes.component_markup.expression.interpreter.InterpretationEnvir
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +20,8 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -27,19 +30,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
 
+  // TODO: Return shulkerboxes and duplicate items
+
+  private record FilterViewingSession(Player viewer, OfflinePlayer owner, boolean editable, Inventory inventory) {}
+
   private final ChestShopRegistry shopRegistry;
   private final Economy economy;
   private final @Nullable EcoLogger ecoLogger;
+  private final OfflinePlayerRegistry offlinePlayerRegistry;
 
   private final Logger logger;
   private final ConfigKeeper<MainSection> config;
 
-  private final Map<UUID, Inventory> editedFiltersByPlayerId;
+  private final List<FilterViewingSession> viewingSessions;
 
   private final NamespacedKey filtersItemDataKey;
 
@@ -48,15 +57,17 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
     ChestShopRegistry shopRegistry,
     Economy economy,
     @Nullable EcoLogger ecoLogger,
+    OfflinePlayerRegistry offlinePlayerRegistry,
     ConfigKeeper<MainSection> config
   ) {
     this.logger = plugin.getLogger();
     this.shopRegistry = shopRegistry;
     this.economy = economy;
     this.ecoLogger = ecoLogger;
+    this.offlinePlayerRegistry = offlinePlayerRegistry;
     this.config = config;
 
-    this.editedFiltersByPlayerId = new HashMap<>();
+    this.viewingSessions = new ArrayList<>();
 
     this.filtersItemDataKey = new NamespacedKey(plugin, "inv-sell-filters");
   }
@@ -92,13 +103,56 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
     }
 
     if (actionConstant.constant == CommandAction.FILTERS) {
+      OfflinePlayer target = player;
+
+      if (args.length == 2) {
+        if (!player.hasPermission("chestshopextensions.invsell.filters.others")) {
+          config.rootSection.sellGui.invSell.filtersOtherMissingPermission.sendMessage(player);
+          return true;
+        }
+
+        target = offlinePlayerRegistry.getPlayerByName(args[1]);
+
+        if (target == null) {
+          config.rootSection.sellGui.invSell.filtersOtherUnknownName.sendMessage(
+            player,
+            new InterpretationEnvironment()
+              .withVariable("name", args[1])
+          );
+          return true;
+        }
+      }
+
+      var targetId = target.getUniqueId();
+      var existingSession = accessFirstMatching(it -> it.owner.getUniqueId().equals(targetId), false);
+
+      if (existingSession != null) {
+        config.rootSection.sellGui.invSell.filtersOtherCurrentlyViewed.sendMessage(
+          player,
+          new InterpretationEnvironment()
+            .withVariable("target_name", target.getName())
+            .withVariable("viewer_name", existingSession.viewer.getName())
+        );
+        return true;
+      }
+
       var filtersInventory = makeFiltersInventory();
-      loadFiltersFromPlayerPDCAndGetIfEmpty(player, filtersInventory);
+      loadFiltersFromPlayerPDCAndGetIfEmpty(target, filtersInventory);
+
+      viewingSessions.add(new FilterViewingSession(player, target, target.isOnline(), filtersInventory));
 
       player.openInventory(filtersInventory);
-      editedFiltersByPlayerId.put(player.getUniqueId(), filtersInventory);
 
       config.rootSection.sellGui.invSell.openingFiltersInventory.sendMessage(player);
+
+      if (!player.getUniqueId().equals(targetId)) {
+        config.rootSection.sellGui.invSell.filtersOtherNowViewing.sendMessage(
+          player,
+          new InterpretationEnvironment()
+            .withVariable("target_name", target.getName())
+        );
+      }
+
       return true;
     }
 
@@ -107,10 +161,32 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
 
   @Override
   public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-    if (!(sender instanceof Player player) || !(player.hasPermission("chestshopextensions.invsell")) || args.length != 1)
+    if (!(sender instanceof Player player) || !(player.hasPermission("chestshopextensions.invsell")))
       return List.of();
 
-    return CommandAction.matcher.createCompletions(args[0]);
+    if (args.length == 1)
+      return CommandAction.matcher.createCompletions(args[0]);
+
+    if (args.length == 2 && player.hasPermission("chestshopextensions.invsell.filters.others")) {
+      var typedNameLower = args[1].toLowerCase();
+
+      return offlinePlayerRegistry.streamKnownNames()
+        .filter(it -> it.toLowerCase().startsWith(typedNameLower))
+        .limit(15)
+        .toList();
+    }
+
+    return List.of();
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onInventoryClick(InventoryClickEvent event) {
+    handleInventoryInteraction(event);
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void onInventoryDrag(InventoryDragEvent event) {
+    handleInventoryInteraction(event);
   }
 
   @EventHandler
@@ -118,23 +194,84 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
     if (!(event.getPlayer() instanceof Player player))
       return;
 
-    var playerId = player.getUniqueId();
-    var filtersInventory = editedFiltersByPlayerId.get(playerId);
+    var viewingSession = accessFirstMatching(it -> event.getInventory().equals(it.inventory), true);
 
-    if (filtersInventory == null || !event.getInventory().equals(filtersInventory))
+    if (viewingSession == null)
       return;
 
-    editedFiltersByPlayerId.remove(playerId);
+    var owningPlayer = viewingSession.owner.getPlayer();
 
-    storeFiltersToPlayerPDC(player, filtersInventory);
+    if (!viewingSession.editable || owningPlayer == null) {
+      viewingSession.inventory.clear();
+      return;
+    }
 
-    config.rootSection.sellGui.invSell.savedFiltersInventory.sendMessage(
-      player,
+    handleStoringFilterInventory(owningPlayer, player, viewingSession.inventory);
+  }
+
+  @EventHandler
+  public void onQuit(PlayerQuitEvent event) {
+    var player = event.getPlayer();
+
+    var viewingSession = accessFirstMatching(it -> it.owner.getUniqueId().equals(player.getUniqueId()), true);
+
+    if (viewingSession == null)
+      return;
+
+    viewingSession.viewer.closeInventory();
+
+    config.rootSection.sellGui.invSell.filtersOtherTargetWentOffline.sendMessage(
+      viewingSession.viewer,
       new InterpretationEnvironment()
-        .withVariable("filter_count", Arrays.stream(filtersInventory.getContents()).filter(this::isValidItem).count())
+        .withVariable("target_name", player.getName())
     );
 
-    filtersInventory.clear();
+    handleStoringFilterInventory(player, viewingSession.viewer, viewingSession.inventory);
+  }
+
+  private void handleStoringFilterInventory(Player owningPlayer, Player viewingPlayer, Inventory inventory) {
+    storeFiltersToPlayerPDC(owningPlayer, inventory);
+
+    config.rootSection.sellGui.invSell.savedFiltersInventory.sendMessage(
+      viewingPlayer,
+      new InterpretationEnvironment()
+        .withVariable("filter_count", Arrays.stream(inventory.getContents()).filter(this::isValidItem).count())
+    );
+
+    inventory.clear();
+  }
+
+  private void handleInventoryInteraction(InventoryInteractEvent event) {
+    if (!(event.getWhoClicked() instanceof Player player))
+      return;
+
+    var topInventory = player.getOpenInventory().getTopInventory();
+    var viewingSession = accessFirstMatching(it -> topInventory.equals(it.inventory), false);
+
+    if (viewingSession != null && !viewingSession.editable) {
+      event.setCancelled(true);
+
+      config.rootSection.sellGui.invSell.filtersOtherReadOnly.sendMessage(
+        viewingSession.viewer,
+        new InterpretationEnvironment()
+          .withVariable("target_name", player.getName())
+      );
+    }
+  }
+
+  private @Nullable FilterViewingSession accessFirstMatching(Predicate<FilterViewingSession> predicate, boolean remove) {
+    for (var index = 0; index < viewingSessions.size(); ++index) {
+      var viewingSession = viewingSessions.get(index);
+
+      if (predicate.test(viewingSession)) {
+        if (remove)
+          viewingSessions.remove(index);
+
+        return viewingSession;
+      }
+    }
+
+    return null;
   }
 
   private void handleSellingInventory(Player player, String commandLabel) {
@@ -186,7 +323,7 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
     player.getPersistentDataContainer().set(filtersItemDataKey, PersistentDataType.BYTE_ARRAY, itemDataBytes);
   }
 
-  private boolean loadFiltersFromPlayerPDCAndGetIfEmpty(Player player, Inventory filtersInventory) {
+  private boolean loadFiltersFromPlayerPDCAndGetIfEmpty(OfflinePlayer player, Inventory filtersInventory) {
     var itemDataBytes = player.getPersistentDataContainer().get(filtersItemDataKey, PersistentDataType.BYTE_ARRAY);
 
     if (itemDataBytes == null)

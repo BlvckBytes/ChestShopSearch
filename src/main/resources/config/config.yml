@@ -66,6 +66,12 @@ sellGui:
     savedFiltersInventory: '<&a>[Shop] <&f>Es wurden <&a>{filter_count} Inventarverkaufsfilter <&f>gespeichert.'
     noFiltersConfigured: '<&a>[Shop] <&c>Es wurden noch keine Inventarverkaufsfilter konfiguriert. Stelle Filter mit <&4>{edit_command} <&c>ein.'
     noMatchingItemsFound: '<&a>[Shop] <&c>Dein Inventar beinhaltet keine übereinstimmenden Items, die verkauft werden könnten. Stelle Filter mit <&4>{edit_command} <&c>ein.'
+    filtersOtherMissingPermission: '<&a>[Shop] <&c>Du hast keinen Zugriff darauf, die Filter anderer einzusehen!'
+    filtersOtherUnknownName: '<&a>[Shop] <&c>Der Spielername <&4>{name} <&c>ist dem Server nicht bekannt!'
+    filtersOtherCurrentlyViewed: '<&a>[Shop] <&c>Das Filtermenü von <&4>{target_name} wird gerade bereits von <&4>{viewer_name} <&c>eingesehen!'
+    filtersOtherNowViewing: '<&a>[Shop] <&f>Du siehst nun das Filtermenü von <&a>{target_name} <&f>ein.'
+    filtersOtherTargetWentOffline: '<&a>[Shop] <&c>Der Besitzer <&4>{target_name} <&c>des aktuell geöffneten Filtermenüs hat den Server verlassen - schließe!'
+    filtersOtherReadOnly: '<&a>[Shop] <&c>Das Filtermenü von <&4>{target_name} <&c>kann nicht bearbeitet werden, da der Spieler offline ist!'
 
 transactionUndo:
   undoWindowSeconds: 10

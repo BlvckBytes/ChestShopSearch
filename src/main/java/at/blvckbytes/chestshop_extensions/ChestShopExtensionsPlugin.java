@@ -143,7 +143,10 @@ public class ChestShopExtensionsPlugin extends JavaPlugin {
 
       var invSellCommand = Objects.requireNonNull(getCommand("invsell"));
 
-      var invSellExecutor = new InvSellCommand(this, chestShopRegistry, economy, ecoLogger, config);
+      var offlinePlayerRegistry = new OfflinePlayerRegistry();
+      Bukkit.getPluginManager().registerEvents(offlinePlayerRegistry, this);
+
+      var invSellExecutor = new InvSellCommand(this, chestShopRegistry, economy, ecoLogger, offlinePlayerRegistry, config);
       Bukkit.getPluginManager().registerEvents(invSellExecutor, this);
 
       invSellCommand.setExecutor(invSellExecutor);

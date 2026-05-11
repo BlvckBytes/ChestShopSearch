@@ -15,6 +15,12 @@ public class InvSellSection extends ConfigSection {
   public ComponentMarkup savedFiltersInventory;
   public ComponentMarkup noFiltersConfigured;
   public ComponentMarkup noMatchingItemsFound;
+  public ComponentMarkup filtersOtherMissingPermission;
+  public ComponentMarkup filtersOtherUnknownName;
+  public ComponentMarkup filtersOtherCurrentlyViewed;
+  public ComponentMarkup filtersOtherNowViewing;
+  public ComponentMarkup filtersOtherTargetWentOffline;
+  public ComponentMarkup filtersOtherReadOnly;
 
   public InvSellSection(InterpretationEnvironment baseEnvironment, InterpreterLogger interpreterLogger) {
     super(baseEnvironment, interpreterLogger);

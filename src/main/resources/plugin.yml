@@ -40,3 +40,5 @@ permissions:
     description: 'Allows to undo transactions within a configurable time-window'
   chestshopextensions.toggle.bypass:
     description: 'Allows to bypass having to be the owner of a region to toggle advertising in the shop-search'
+  chestshopextensions.invsell.filters.others:
+    description: 'Allows to view and possibly edit the filter-menu of other players'
