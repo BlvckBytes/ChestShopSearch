@@ -13,6 +13,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Tag;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,8 +36,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
-
-  // TODO: Return shulkerboxes and duplicate items
 
   private record FilterViewingSession(Player viewer, OfflinePlayer owner, boolean editable, Inventory inventory) {}
 
@@ -230,6 +229,31 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
   }
 
   private void handleStoringFilterInventory(Player owningPlayer, Player viewingPlayer, Inventory inventory) {
+    var viewerInventory = viewingPlayer.getInventory();
+    var shulkerCount = 0;
+
+    for (var slotIndex = 0; slotIndex < inventory.getSize(); ++slotIndex) {
+      var currentItem = inventory.getItem(slotIndex);
+
+      if (currentItem == null || currentItem.getAmount() <= 0 || !Tag.SHULKER_BOXES.isTagged(currentItem.getType()))
+        continue;
+
+      shulkerCount += currentItem.getAmount();
+
+      for (var remainder : viewerInventory.addItem(currentItem).values())
+        viewingPlayer.getWorld().dropItem(viewingPlayer.getEyeLocation(), remainder);
+
+      inventory.setItem(slotIndex, null);
+    }
+
+    if (shulkerCount > 0) {
+      config.rootSection.sellGui.invSell.filtersReturnedShulkerBoxes.sendMessage(
+        viewingPlayer,
+        new InterpretationEnvironment()
+          .withVariable("count", shulkerCount)
+      );
+    }
+
     storeFiltersToPlayerPDC(owningPlayer, inventory);
 
     config.rootSection.sellGui.invSell.savedFiltersInventory.sendMessage(

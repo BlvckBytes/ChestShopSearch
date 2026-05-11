@@ -15,6 +15,7 @@ public class InvSellSection extends ConfigSection {
   public ComponentMarkup savedFiltersInventory;
   public ComponentMarkup noFiltersConfigured;
   public ComponentMarkup noMatchingItemsFound;
+  public ComponentMarkup filtersReturnedShulkerBoxes;
   public ComponentMarkup filtersOtherMissingPermission;
   public ComponentMarkup filtersOtherUnknownName;
   public ComponentMarkup filtersOtherCurrentlyViewed;

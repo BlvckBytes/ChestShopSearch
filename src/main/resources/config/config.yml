@@ -66,6 +66,7 @@ sellGui:
     savedFiltersInventory: '<&a>[Shop] <&f>Es wurden <&a>{filter_count} Inventarverkaufsfilter <&f>gespeichert.'
     noFiltersConfigured: '<&a>[Shop] <&c>Es wurden noch keine Inventarverkaufsfilter konfiguriert. Stelle Filter mit <&4>{edit_command} <&c>ein.'
     noMatchingItemsFound: '<&a>[Shop] <&c>Dein Inventar beinhaltet keine übereinstimmenden Items, die verkauft werden könnten. Stelle Filter mit <&4>{edit_command} <&c>ein.'
+    filtersReturnedShulkerBoxes: '<&a>[Shop] <&c>Das Filtermenü unterstützt keine <&4>Shulkerboxen<&c>; retourniere <&4>{count} Items<&c>!'
     filtersOtherMissingPermission: '<&a>[Shop] <&c>Du hast keinen Zugriff darauf, die Filter anderer einzusehen!'
     filtersOtherUnknownName: '<&a>[Shop] <&c>Der Spielername <&4>{name} <&c>ist dem Server nicht bekannt!'
     filtersOtherCurrentlyViewed: '<&a>[Shop] <&c>Das Filtermenü von <&4>{target_name} wird gerade bereits von <&4>{viewer_name} <&c>eingesehen!'
