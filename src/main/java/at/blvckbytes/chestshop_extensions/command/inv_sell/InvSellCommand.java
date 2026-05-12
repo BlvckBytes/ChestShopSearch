@@ -278,7 +278,7 @@ public class InvSellCommand implements CommandExecutor, TabCompleter, Listener {
       config.rootSection.sellGui.invSell.filtersOtherReadOnly.sendMessage(
         viewingSession.viewer,
         new InterpretationEnvironment()
-          .withVariable("target_name", player.getName())
+          .withVariable("target_name", viewingSession.owner.getName())
       );
     }
   }
